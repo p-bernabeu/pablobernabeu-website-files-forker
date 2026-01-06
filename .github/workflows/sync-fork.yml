@@ -22,7 +22,7 @@ jobs:
       - name:  Checkout destination repository
         uses:  actions/checkout@v4
         with:
-          repository: p-bernabeu/pablobernabeu-forker
+          repository: p-bernabeu/pablobernabeu-website-files-forker
           token: ${{ secrets.PRIVATE_REPO_PAT }}
           fetch-depth: 0
           path: dest-repo
