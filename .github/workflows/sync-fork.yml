@@ -30,7 +30,7 @@ jobs:
       - name:  Sync content (preserve workflows)
         run: |
           # Save the workflows
-          cp -r dest-repo/. github dest-repo/.github-backup
+          cp -r dest-repo/.github dest-repo/.github-backup
           
           # Sync all content from source
           cd source-repo
@@ -42,12 +42,12 @@ jobs:
           cd ../dest-repo
           git checkout main
           rm -rf .github/workflows
-          cp -r .github-backup/workflows . github/
+          cp -r .github-backup/workflows.github/
           rm -rf .github-backup
           
           # Commit and push the restored workflows
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users. noreply.github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/workflows
           git commit -m "Restore sync workflow after sync" || true
           git push origin main
