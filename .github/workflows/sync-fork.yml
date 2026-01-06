@@ -1,53 +1,54 @@
 name: Sync Fork from Private Repository
 
 on:
-  schedule:  
+  schedule: 
     # Runs daily at 2 AM UTC
     - cron: '0 2 * * *'
-  workflow_dispatch:   # Allows manual triggering
+  workflow_dispatch:    # Allows manual triggering
 
-jobs:  
-  sync:   
+jobs:
+  sync:
     runs-on: ubuntu-latest
     
-    steps:  
+    steps:
       - name: Checkout source repository
         uses: actions/checkout@v4
-        with: 
-          repository: pablobernabeu/website-files
+        with:
+          repository:  pablobernabeu/website-files
           token: ${{ secrets.PRIVATE_REPO_PAT }}
-          fetch-depth: 0
+          fetch-depth:  0
           path: source-repo
           
       - name:  Checkout destination repository
-        uses: actions/checkout@v4
-        with: 
+        uses:  actions/checkout@v4
+        with:
           repository: p-bernabeu/pablobernabeu-forker
           token: ${{ secrets.PRIVATE_REPO_PAT }}
           fetch-depth: 0
           path: dest-repo
+          ref: main
           
-      - name:  Sync content (preserve workflows)
+      - name: Sync content (preserve workflows)
         run: |
-          # Save the workflows
-          cp -r dest-repo/.github dest-repo/.github-backup
+          # Save the workflow file
+          cp dest-repo/.github/workflows/sync-fork.yml /tmp/sync-fork.yml
           
-          # Sync all content from source
-          cd source-repo
-          git remote add destination ../dest-repo
-          git push destination --force master:main
-          git push destination --force --tags
+          # Remove all content from dest-repo except .git
+          cd dest-repo
+          find . -mindepth 1 -maxdepth 1 !  -name '.git' -exec rm -rf {} +
           
-          # Restore the workflows
+          # Copy all content from source-repo
+          cd ../source-repo
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec cp -r {} ../dest-repo/ \;
+          
+          # Restore the workflow file
+          mkdir -p ../dest-repo/.github/workflows
+          cp /tmp/sync-fork.yml ../dest-repo/.github/workflows/sync-fork.yml
+          
+          # Commit and push changes
           cd ../dest-repo
-          git checkout main
-          rm -rf .github/workflows
-          cp -r .github-backup/workflows.github/
-          rm -rf .github-backup
-          
-          # Commit and push the restored workflows
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .github/workflows
-          git commit -m "Restore sync workflow after sync" || true
+          git add -A
+          git commit -m "Sync from pablobernabeu/website-files" || echo "No changes to commit"
           git push origin main
