@@ -45,6 +45,11 @@ jobs:
           mkdir -p ../dest-repo/.github/workflows
           cp /tmp/sync-fork.yml ../dest-repo/.github/workflows/sync-fork.yml
           
+          # Disable specific workflows by removing them
+          cd ../dest-repo
+          rm -f .github/workflows/indexnow.yml
+          rm -f .github/workflows/update-cv.yml
+          
           # Commit and push changes
           cd ../dest-repo
           git config user.name "github-actions[bot]"
