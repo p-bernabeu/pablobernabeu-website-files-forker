@@ -3,12 +3,102 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://pablobernabeu.github.io/2026/open-science-new-research-standard/</loc>
-    <lastmod>2026-02-13T00:00:00+00:00</lastmod>
+    <loc>https://pablobernabeu.github.io/categories/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/categories/</loc>
+    <loc>https://pablobernabeu.github.io/tags/claude/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/computational-linguistics/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/gemini/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/generative-artificial-intelligence/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/categories/large-language-models/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/large-language-models/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/machine-learning/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/openai/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/post/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/prompt-engineering/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/categories/r/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/r/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/s/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/visualisation/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/tags/word-co-occurrence/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/2026/you-shall-know-a-word-by-the-company-it-keeps/</loc>
+    <lastmod>2026-03-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://pablobernabeu.github.io/2026/open-science-new-research-standard/</loc>
     <lastmod>2026-02-13T00:00:00+00:00</lastmod>
   </url>
   
@@ -28,16 +118,6 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/</loc>
-    <lastmod>2026-02-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://pablobernabeu.github.io/post/</loc>
-    <lastmod>2026-02-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://pablobernabeu.github.io/tags/preregistration/</loc>
     <lastmod>2026-02-13T00:00:00+00:00</lastmod>
   </url>
@@ -48,27 +128,17 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/research-methods/</loc>
-    <lastmod>2026-02-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://pablobernabeu.github.io/categories/research-methods/</loc>
     <lastmod>2026-02-13T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/s/</loc>
+    <loc>https://pablobernabeu.github.io/tags/research-methods/</loc>
     <lastmod>2026-02-13T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://pablobernabeu.github.io/tags/scientific-integrity/</loc>
-    <lastmod>2026-02-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://pablobernabeu.github.io/tags/</loc>
     <lastmod>2026-02-13T00:00:00+00:00</lastmod>
   </url>
   
@@ -178,11 +248,6 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/machine-learning/</loc>
-    <lastmod>2026-01-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://pablobernabeu.github.io/categories/programming/</loc>
     <lastmod>2026-01-27T00:00:00+00:00</lastmod>
   </url>
@@ -213,11 +278,6 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/gemini/</loc>
-    <lastmod>2025-11-21T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://pablobernabeu.github.io/tags/genai/</loc>
     <lastmod>2025-11-21T00:00:00+00:00</lastmod>
   </url>
@@ -234,11 +294,6 @@
   
   <url>
     <loc>https://pablobernabeu.github.io/tags/notebooklm/</loc>
-    <lastmod>2025-11-21T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://pablobernabeu.github.io/tags/r/</loc>
     <lastmod>2025-11-21T00:00:00+00:00</lastmod>
   </url>
   
@@ -299,11 +354,6 @@
   
   <url>
     <loc>https://pablobernabeu.github.io/tags/natural-language-processing/</loc>
-    <lastmod>2025-11-12T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://pablobernabeu.github.io/tags/openai/</loc>
     <lastmod>2025-11-12T00:00:00+00:00</lastmod>
   </url>
   
@@ -438,12 +488,12 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/categories/replication/</loc>
+    <loc>https://pablobernabeu.github.io/tags/replication/</loc>
     <lastmod>2025-10-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/replication/</loc>
+    <loc>https://pablobernabeu.github.io/categories/replication/</loc>
     <lastmod>2025-10-01T00:00:00+00:00</lastmod>
   </url>
   
@@ -718,11 +768,6 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/categories/r/</loc>
-    <lastmod>2024-06-30T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://pablobernabeu.github.io/2024/r-functions-for-checking-and-fixing-vmrk-files-from-brainvision/</loc>
     <lastmod>2024-06-30T00:00:00+00:00</lastmod>
   </url>
@@ -748,12 +793,12 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/job/</loc>
+    <loc>https://pablobernabeu.github.io/categories/job/</loc>
     <lastmod>2024-03-27T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/categories/job/</loc>
+    <loc>https://pablobernabeu.github.io/tags/job/</loc>
     <lastmod>2024-03-27T00:00:00+00:00</lastmod>
   </url>
   
@@ -1069,11 +1114,6 @@
   
   <url>
     <loc>https://pablobernabeu.github.io/tags/statistical-power/</loc>
-    <lastmod>2023-06-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://pablobernabeu.github.io/tags/visualisation/</loc>
     <lastmod>2023-06-27T00:00:00+00:00</lastmod>
   </url>
   
@@ -2088,12 +2128,12 @@
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/categories/big-data/</loc>
+    <loc>https://pablobernabeu.github.io/tags/big-data/</loc>
     <lastmod>2016-01-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://pablobernabeu.github.io/tags/big-data/</loc>
+    <loc>https://pablobernabeu.github.io/categories/big-data/</loc>
     <lastmod>2016-01-01T00:00:00+00:00</lastmod>
   </url>
   
