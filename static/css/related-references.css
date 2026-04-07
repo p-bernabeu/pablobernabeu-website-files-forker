@@ -149,6 +149,7 @@ h4:has(+ .related-references) {
 .ref-type-filter {
   flex: 1 1 auto;
   min-width: 10em;
+  max-width: 18em;
 }
 
 .ref-type-select {
@@ -240,6 +241,9 @@ h4:has(+ .related-references) {
   background: #fff !important;
   font-size: 0.82em;
   align-self: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  white-space: nowrap;
   outline: none;
   box-shadow: none;
 }
@@ -291,8 +295,26 @@ h4:has(+ .related-references) {
   width: 100%;
   justify-content: space-between;
   align-items: baseline;
-  gap: 0.8em;
+  flex-wrap: wrap;
+  gap: 0.4em 0.8em;
   margin-bottom: 0.15em;
+}
+
+.ref-query-links {
+  font-size: 0.88em;
+  color: var(--text-secondary, #64748b);
+  white-space: normal;
+}
+
+.ref-query-links a {
+  color: var(--text-primary, #1e293b);
+  text-decoration: underline;
+  text-decoration-color: var(--anim-start, aquamarine);
+  text-underline-offset: 2px;
+}
+
+.ref-query-links a:hover {
+  color: var(--anim-start, aquamarine);
 }
 
 .ref-query-label {
@@ -320,8 +342,6 @@ h4:has(+ .related-references) {
 }
 
 .ref-query-link {
-  font-size: 0.88em;
-  margin-left: auto;
   white-space: nowrap;
 }
 
