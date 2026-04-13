@@ -281,10 +281,26 @@ format_citation_for_hugo <- function(citation, doi) {
 
   citation <- trimws(citation)
 
+  # Remove Portico preservation-service label inserted by CrossRef's APA formatter
+  citation <- gsub("\.?\\s*Portico\.?", "", citation, ignore.case = FALSE, perl = FALSE)
+  citation <- trimws(citation)
+
   # Strip month/day from parenthetical dates, keeping year only: (2023, March 15) -> (2023)
   citation <- gsub("\\((\\d{4})[a-z]?),\\s*[A-Za-z]+\\.?\\s*\\d{0,2}\\)", "(\\1)", citation)
 
   citation <- sub("\\.$", "", citation)
+
+  # Add APA 7 italics: wrap journal name and volume in *...* so that
+  # citation_md_to_html() converts them to <em> tags.
+  # Pattern: ". Journal Name, Volume[(Issue)][, Pages]" at the end of the body.
+  # Volume must NOT be immediately followed by an en/em-dash, which would
+  # indicate a page range (e.g. "89\u201390") rather than a volume number.
+  citation <- sub(
+    "(\\.\\s+)([^.]+?),\\s*(\\d{1,4})(?![\\u2013\\u2014-])(\\([^)]+\\))?((?:,\\s*[\\w\\d\\u2013-]+(?:[\\u2013-]\\d+)?)*)$",
+    "\\1*\\2*, *\\3*\\4\\5",
+    citation,
+    perl = TRUE
+  )
 
   paste0(citation, ". <", doi_url, ">")
 }
@@ -699,6 +715,25 @@ for (pub_dir in pub_dirs) {
     if (run_start > run_end) run_start <- run_end
     run_period <- run_start:run_end
     cat("  Narrowed run period:", min(run_period), "-", max(run_period), "\n")
+  }
+
+  # Pre-write the timestamp and an empty DOI CSV before calling the Scopus API.
+  # If the API call crashes (e.g.  rate-limit / transient error), these files
+  # will already exist, so the NEXT scheduled run will see is_first_run = FALSE
+  # and move on to scopus_search_additional_DOIs instead of retrying the same
+  # failing first-run path indefinitely.
+  if (is_first_run) {
+    tryCatch({
+      date_time_pre <- as.character(format(Sys.time(), "%Y-%m-%d %H%M"))
+      fileConn <- file(timestamp_file)
+      writeLines(date_time_pre, fileConn)
+      close(fileConn)
+      write.csv(data.frame(x = character(0)),
+                file.path(refs_dir, paste0("DOIs, ", date_time_pre, ".csv")),
+                row.names = FALSE)
+    }, error = function(e) {
+      cat("  Warning: could not pre-write timestamp:", e$message, "\n")
+    })
   }
 
   new_dois <- tryCatch({
