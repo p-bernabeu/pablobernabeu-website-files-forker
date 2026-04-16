@@ -98,6 +98,8 @@ Bernabeu, P., Willems, R. M., & Louwerse, M. M. (2017). Modality switch effects 
 
 
 
+
+
 <script type="application/json" class="scopus-queries">
 {"source":"script","query":"\"A taste of words: Linguistic context and perceptual simulation predict the modality of words\" OR  \"Dutch modality exclusivity norms for 336 properties and 411 concepts\" OR  \"Empirically grounding grounded cognition: The case of color\" OR  \"Exploring modality switching effects in negated sentences: Further evidence for grounded representations\" OR  \"Flexibility in embodied language processing: Context effects in lexical access\" OR  \"Modality exclusivity norms for 423 object properties\" OR  \"Modality switch effects emerge early and increase throughout conceptual processing: Evidence from ERPs\" OR  \"Modality switching in a property verification task: An ERP study of what happens when candles flicker after high heels click\" OR  \"Only time will tell—Why temporal information is essential for our neuroscientific understanding of semantics\" OR  \"Switching modalities in a sentence verification task: ERP evidence for embodied language processing\" OR  \"The modality-switch effect: Visually and aurally presented prime sentences activate our senses\" OR  \"The multilevel modality-switch effect: What happens when we see the bees buzzing and hear the diamonds glistening\" OR  \"Verifying different-modality properties for concepts produces switching costs\" OR  \"Verifying properties from different emotions produces switching costs: Evidence for coarse-grained language statistics and fine-grained perceptual simulation\"","period":"2017-2023","scriptPath":"scripts/collect_related_references.R"}
 </script>
@@ -623,7 +625,7 @@ Zhu, S., Wang, X., & Liu, P. (2021). Who Killed Sanmao and Virginia Woolf? A Com
 
 Ball, L. J., Butler, L. T., Sherman, S. M., & St Clair-Thompson, H. (2023). Cognitive Psychology in a Changing World. <https://doi.org/10.4324/9781003145851>
 
-Barsalou, L. W. (2005). Situated Conceptualization. Handbook of Categorization in Cognitive Science, 735–771. https://doi.org/10.1016/b978-0-08-101107-2.00030-0. <https://doi.org/10.1016/B978-0-08-101107-2.00030-0>
+Barsalou, L. W. (2005). Situated Conceptualization. Handbook of Categorization in Cognitive Science, 735–771. <https://doi.org/10.1016/B978-0-08-101107-2.00030-0>
 
 Cai, Z. G., & Vigliocco, G. (2018). Word Processing. Stevens’ Handbook of Experimental Psychology and Cognitive Neuroscience, 1–36. Portico. <https://doi.org/10.1002/9781119170174.epcn303>
 
@@ -645,7 +647,7 @@ Lenci, A., & Sahlgren, M. (2023). Distributional Semantics. <https://doi.org/10.
 
 O’Meara, C., Speed, L., San Roque, L., & Majid, A. (2019). Perception metaphors. Perception Metaphors, 1–16. Portico. <https://doi.org/10.1075/celcr.19.01ome>
 
-Prinz, J. J. (2005). The Return of Concept Empiricism. Handbook of Categorization in Cognitive Science, 931–950. https://doi.org/10.1016/b978-0-08-101107-2.00037-3. <https://doi.org/10.1016/B978-0-08-101107-2.00037-3>
+Prinz, J. J. (2005). The Return of Concept Empiricism. Handbook of Categorization in Cognitive Science, 931–950. <https://doi.org/10.1016/B978-0-08-101107-2.00037-3>
 
 Scerrati, E., Lugli, L., Nicoletti, R., & Borghi, A. M. (2019). Is the acoustic modality relevant for abstract concepts? Perspectives on Abstract Concepts, 101–118. Portico. <https://doi.org/10.1075/hcp.65.06sce>
 
