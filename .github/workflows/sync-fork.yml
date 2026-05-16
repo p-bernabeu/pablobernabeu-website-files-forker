@@ -49,6 +49,11 @@ jobs:
           cd ../dest-repo
           rm -f .github/workflows/indexnow.yml
           rm -f .github/workflows/update-cv.yml
+          rm -f .github/workflows/check-broken-links.yml
+          rm -f .github/workflows/check-dois.yml
+          rm -f .github/workflows/collect-related-references.yml
+          rm -f .github/workflows/deploy.yml
+          rm -f .github/workflows/spell-check.yml
           
           # Commit and push changes
           cd ../dest-repo
