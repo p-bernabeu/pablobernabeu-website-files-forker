@@ -3,6 +3,7 @@ title: 'Modality switch effects emerge early and increase throughout conceptual 
 authors:
 - '**Bernabeu, P.**, Willems, R. M., & Louwerse, M. M.'
 date: "2017-07-01"
+diagram: true
 abstract: 'We tested whether conceptual processing is modality-specific by tracking the time course of the Conceptual Modality Switch effect. Forty-six participants verified the relation between property words and concept words. The conceptual modality of consecutive trials was manipulated in order to produce an Auditory-to-visual switch condition, a Haptic-to-visual switch condition, and a Visual-to-visual, no-switch condition. Event-Related Potentials (ERPs) were time-locked to the onset of the first word (property) in the target trials so as to measure the effect online and to avoid a within-trial confound. A switch effect was found, characterized by more negative ERP amplitudes for modality switches than no-switches. It proved significant in four typical time windows from 160 to 750 milliseconds post word onset, with greater strength in posterior brain regions, and after 350 milliseconds. These results suggest that conceptual processing may be modality-specific in certain tasks, but also that the early stage of processing is relatively amodal.'
 categories:
   - conceptual processing
@@ -55,6 +56,21 @@ url_poster: 'https://osf.io/dj52n'
 # url_video: '#'
 ---
 
+
+### Study at a glance
+
+{{< diagram >}}
+graph TD
+  A["46 participants verify<br/>property-concept word relations"] --> B["Modality of consecutive<br/>trials manipulated"]
+  B --> C["Auditory-to-visual switch"]
+  B --> D["Haptic-to-visual switch"]
+  B --> E["Visual-to-visual no-switch"]
+  C --> F["ERPs time-locked<br/>to first word onset"]
+  D --> F
+  E --> F
+  F --> G["Switch effect: more negative<br/>amplitudes for switches"]
+  G --> H["Significant in four windows from 160 to 750 ms,<br/>stronger posteriorly and after 350 ms"]
+{{< /diagram >}}
 
 ### Reference
 

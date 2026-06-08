@@ -16,6 +16,7 @@ tags:
   - psychology
   - linguistics
   - psycholinguistics
+diagram: true
 presentation_format: Poster
 event: 30th Conference on Architectures and Mechanisms for Language Processing (AMLaP)
 event_url: 'https://amlap2024.ed.ac.uk/'
@@ -61,6 +62,20 @@ projects: []
 <div style = 'margin-top: 5%;'></div>
 
 
+### Overview
+
+```{=html}
+<div class="mermaid">
+graph TD
+  A["Base files with minimal<br/>language components"] --> B["Modular R framework with<br/>interoperable components"]
+  B --> C["Controls: counterbalance gender and<br/>number, rotate words, control frequency"]
+  C --> D["compile all stimuli script<br/>regenerates final stimuli"]
+  D --> E["Stimuli saved to<br/>session materials folder"]
+  E --> F["Presentation in OpenSesame<br/>across several sessions"]
+  F --> G["Custom script time-locks EEG<br/>to stimulus onset for ERPs"]
+  G --> H["Accessible materials, reproducible<br/>workflow, expandable design"]
+</div>
+```
 #### Snippet 1
 
 *The use of code scripts facilitates the reproducibility, testability and expandability of materials.*

@@ -5,6 +5,7 @@ aliases:
 authors:
   - "Chen, S.-C., Buchanan, E. M., Kekecs, Z., Miller, J. K., Szabelska, A., Aczel, B., **Bernabeu, P.**, Forscher, P. S., Szuts, A., Vally, D. Z., Al-Hoorie, A. H., Helmy, M., da Silva, C. S. A., da Silva, L. O., de Moraes, Y. L., Hsu, R. M. C. S., Mafra, A. L., Valentova, J. V., Varella, M. A. C., … Chartier, C. R."
 date: "2025-10-01"
+diagram: true
 categories:
   - conceptual processing
   - replication
@@ -64,6 +65,17 @@ links:
 
 <div style='margin-top:6%;'></div>
 
+
+### Study at a glance
+{{< diagram >}}
+graph TD
+  A["Read sentence implying<br/>object shape and orientation"] --> B["Verify pictured object:<br/>from the sentence or not"]
+  B --> C["Test match advantage for orientation<br/>across 18 languages,<br/>nearly 4,000 participants"]
+  C --> D["No compelling evidence for<br/>an orientation match advantage"]
+  C --> E["Match advantage not predicted<br/>by mental rotation scores"]
+  D --> F["Implications for mental simulation<br/>theory and methodology"]
+  E --> F
+{{< /diagram >}}
 
 #### &nbsp; <i class="fa fa-folder"></i>&nbsp; <a href='https://osf.io/e428p/'>General project</a>
 

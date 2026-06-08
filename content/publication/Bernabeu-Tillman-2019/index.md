@@ -4,6 +4,7 @@ abstract: 'Linguistic relativity is the influence of language on other realms of
 authors:
 - '**Bernabeu, P.**, & Tillman, R.'
 date: "2019-01-01"
+diagram: true
 categories:
   - linguistic relativity
 doi: "10.1075/dujal.15019.ber"
@@ -42,6 +43,20 @@ url_poster: 'https://www.researchgate.net/publication/271588734_Linguistic_relat
 ---
 
 
+### Study at a glance
+
+{{< diagram >}}
+graph TD
+  A["Linguistic relativity:<br/>language influences cognition"] --> B["Motion event encoding<br/>(MEE) typology"]
+  B --> C["Path-in-verb languages<br/>(e.g., leave)"]
+  B --> D["Manner-in-verb languages<br/>(e.g., jump)"]
+  A --> E["Mixed prior results: no effect<br/>to verbal and nonverbal effects"]
+  E --> F["Proposed enhancements"]
+  F --> G["Refined typology across twenty<br/>languages (Verkerk, 2014)"]
+  F --> H["Distinguish verbal and nonverbal<br/>subgroups, add filler items"]
+  G --> I["Improved experimental design"]
+  H --> I
+{{< /diagram >}}
 ### Reference
 
 Bernabeu, P., & Tillman, R. (2019). More refined typology and design in linguistic relativity: The case of motion event encoding. *Dutch Journal of Applied Linguistics, 8*(2), 163-171. http://doi.org/10.1075/dujal.15019.ber

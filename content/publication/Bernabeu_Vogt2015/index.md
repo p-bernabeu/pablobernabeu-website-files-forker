@@ -19,6 +19,7 @@ publication: '*Tenth Language at the University of Essex (LangUE) Postgraduate C
 publication_short: 
 publication_types:
 - "1"
+diagram: true
 preregistered: false
 open_materials: false
 open_data: false
@@ -38,6 +39,19 @@ url_fulltext: 'https://www.researchgate.net/profile/Pablo_Bernabeu3/publication/
 ---
 
 
+### Study at a glance
+
+{{< diagram >}}
+graph TD
+  A["Adapted prior experiment:<br/>participants act out events"] --> B["Perceptual features of events"]
+  A --> C["Added variable:<br/>communication mode"]
+  C --> D["Body-based communication<br/>(gestures)"]
+  C --> E["Disembodied communication<br/>(symbol matching)"]
+  B --> F["Resulting grammatical<br/>orders / preferences"]
+  D --> F
+  E --> F
+  F --> G["Greater effect of embodiment<br/>on grammatical preferences"]
+{{< /diagram >}}
 ### Reference
 
 Bernabeu, P., & Vogt, P. (2015). Language evolution: Current status and future directions. *Tenth Language at the University of Essex (LangUE) Postgraduate Conference*. https://researchgate.net/publication/280858062/
