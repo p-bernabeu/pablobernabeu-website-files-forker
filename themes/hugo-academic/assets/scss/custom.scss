@@ -1,5 +1,4 @@
 
-
 // Override this file to add your own SCSS styling.
 
 // Responsive base font size - scales with viewport, slightly larger on big screens
@@ -382,7 +381,7 @@ body.dark #top div.universal-wrapper a {
 }
 
 // Make blog link full width with centred text
-#blog > div > div > div:nth-child(2) > div > div.media-body > a {
+#blog > div > div > div.col-12 > div > div.media-body > a {
   display: block !important;
   width: 100% !important;
   text-align: center !important;
@@ -608,14 +607,6 @@ section.home-section .col-lg-4 {
 }
 
 /* Footer tag cloud - simpler version without network */
-.footer-tag-cloud-section {
-  padding: 1.5rem 0;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  border-top: 1px solid rgba(128, 128, 128, 0.2);
-  overflow-x: hidden !important;
-  overflow-y: visible !important;
-}
 
 /* Site footer spacing to prevent overlap with tag cloud */
 .site-footer {
@@ -643,10 +634,6 @@ body > div.container:last-of-type {
     max-height: none !important;
     overflow-y: hidden !important;
   }
-}
-
-body.dark .footer-tag-cloud-section {
-  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .footer-tag-cloud {
@@ -741,35 +728,11 @@ body.dark #top > div > div > h2 a {
   margin-right: auto !important;
 }
 
-/* Increase margin under universal wrapper */
-#top > div.universal-wrapper.pt-3 {
-  margin-bottom: -2.5rem !important;
-  padding-bottom: 0rem !important;
-}
-
 /* Remove horizontal padding from universal-wrapper in mobile view */
 @media (max-width: 991px) {
   #top > div.universal-wrapper.pt-3 {
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
-  }
-}
-
-/* Additional reduction for publication page only */
-body.page-publications #top > div.universal-wrapper.pt-3 {
-  margin-bottom: -3.2rem !important;
-  max-width: 760px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* Remove left and right margins in mobile view */
-@media (max-width: 991px) {
-  body.page-publications #top > div.universal-wrapper.pt-3 {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
   }
 }
 
@@ -782,9 +745,6 @@ body.page-publications #top > div.universal-wrapper.pt-3 {
 }
 
 /* Reduce margin for publication page */
-body.page-publications #top > div:nth-child(4) {
-  margin-top: 0rem !important;
-}
 
 /* Increase margin under content section header */
 #top > div:nth-child(4) > div > div {
@@ -794,7 +754,6 @@ body.page-publications #top > div:nth-child(4) {
 
 /* Increase margin under h1 in universal wrapper */
 #top > div.universal-wrapper.pt-3 > h1 {
-  margin-bottom: 2rem !important;
   font-size: 2.75rem !important;
 }
 
@@ -839,11 +798,6 @@ section.home-section .col-lg-4::-webkit-scrollbar {
 // Reduce article-container top margin
 .article-container {
   margin-top: 0.5rem !important;
-}
-
-// Exception: Increase margin for article-container after featured image on presentation pages  
-html body.page-wrapper #top > div.pub > div.article-header.featured-image-wrapper + div.article-container.pt-3 {
-  margin-top: 6rem !important;
 }
 
 // Home page max-width
@@ -913,13 +867,6 @@ body.dark .modal-footer .btn-outline-primary:not(:hover):not(:active) {
 // Increase top padding for publication section
 #publication > div {
   padding-top: 1.5rem !important;
-}
-
-// Format page titles on post and presentation pages like home page
-.page-heading h1 {
-  font-size: 2.5rem !important;
-  font-weight: 400 !important;
-  margin-bottom: 0.25rem !important;
 }
 
 // Format titles in post and presentation lists
@@ -1034,7 +981,6 @@ div.col-12.section-heading > h1 {
   }
   
   #publication > div > div > div.col-12.section-heading > h1 {
-    margin-top: 0 !important;
     margin-bottom: 0.3rem !important;
   }
 }
@@ -1112,12 +1058,6 @@ h3#related-podcasts ~ p .fa-wand-magic-sparkles {
 // Reduce margin above stream-meta article-metadata
 #top > div:nth-child(4) > div > div.media-body > div.stream-meta.article-metadata {
   margin-top: -0.3rem !important;
-}
-
-// Remove navbar's extra horizontal padding
-.navbar {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
 // Navbar container max-width
@@ -1267,7 +1207,6 @@ textarea {
 
 #publication > div > div > div > div > div.media-body > div.stream-meta.article-metadata > div {
   line-height: 1.4 !important;
-  font-size: 0.8rem !important;
   margin-top: 0.3rem !important;
 }
 
@@ -1690,15 +1629,7 @@ body.dark #open-science-popup a:hover {
   font-size: 0.8rem !important;
 }
 
-// Override font size for publication pages specifically
-body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-metadata,
-body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-metadata * {
-  font-size: 2rem !important;
-  color: red !important;
-}
-
 #top > div.pub > div.article-container.pt-3 > div.article-metadata {
-  margin-bottom: 0.5rem !important;
   padding-bottom: 0.5rem !important;
 }
 
@@ -1726,16 +1657,6 @@ body.page-wrapper #top > div.pub > div.article-container.pt-3 > div.article-meta
   font-size: 0.8rem !important;
 }
 
-// Publication pages: increase font size for categories
-body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-metadata > span.article-categories * {
-  font-size: 2rem !important;
-}
-
-// Reduce font size of first metadata span
-#top > div.pub > div.article-container.pt-3 > div.article-metadata > span:nth-child(1) > span {
-  font-size: 0.85rem !important;
-}
-
 // Override ALL span > span to match general metadata size increase (must come after more specific rules)
 #top > div.pub > div.article-container.pt-3 > div.article-metadata > span:nth-child(1) > span {
   font-size: 1.15rem !important;
@@ -1743,11 +1664,6 @@ body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-
 
 #top > div.pub > div.article-container.pt-3 > div.article-metadata > span > span {
   font-size: 1.15rem !important;
-}
-
-// Publication pages: increase font size for first metadata span
-body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-metadata > span:nth-child(1) > span {
-  font-size: 2rem !important;
 }
 
 // Hide middot dividers in publication metadata
@@ -1777,11 +1693,6 @@ article .article-container.pt-3 > div.btn-links.mb-3 > button:not(.full-text-btn
 #top > div.pub > div.article-container.pt-3 > .btn-links {
   margin-top: 0.15rem !important;
   margin-bottom: 0.1rem !important;
-}
-
-// Move down all section images on home page
-div > div > div > div > div.ml-3 > a > img {
-  margin-top: 1.5rem !important;
 }
 
 // Fix presentation metadata padding and margin
@@ -1894,17 +1805,6 @@ div > div > div > div > div.media-body > div.stream-meta.article-metadata > div 
 
 div > div > div > div > div.media-body > div.stream-meta.article-metadata > div > span.article-date {
   font-size: 0.8rem !important;
-}
-
-// Mobile navbar icon positioning
-@media (max-width: 1199px) {
-  .navbar-toggler {
-    margin-left: -1.5rem !important;
-  }
-  
-  .navbar-nav.ml-auto {
-    margin-right: -1rem !important;
-  }
 }
 
 // Mobile navbar icon positioning
@@ -2048,10 +1948,10 @@ body.dark {
   
   // Navigation colors for dark theme (INVERTED - uses light theme colors)
   --nav-text: #475569;
-  --nav-hover: #00ff00; // Green for hover underline (from light theme)
+  --nav-hover: #A5D9C5; // Mint underline, matches light theme (was fluorescent #00ff00)
   --nav-active: #0d9488; // Darker teal for active - better contrast on dark navbar
   --nav-link: #79A990; // Muted teal (from light theme)
-  --nav-hover-text: #006400; // Dark green for hover text (from light theme)
+  --nav-hover-text: #A5D9C5; // Mint text, visible on dark navbar (was near-invisible #006400)
   
   // Background colors for dark theme (converted for dark mode)
   --bg-highlight: rgba(72, 187, 120, 0.2); // Green highlight with low opacity for dark
@@ -2343,24 +2243,6 @@ body.dark {
     border-color: #f59e0b !important;
   }
   
-  .alert-danger {
-    background-color: #991b1b !important;
-    color: #fecaca !important;
-    border-color: #ef4444 !important;
-  }
-  
-  .alert-light {
-    background-color: #374151 !important;
-    color: #e2e8f0 !important;
-    border-color: #6b7280 !important;
-  }
-  
-  .alert-dark {
-    background-color: #1f2937 !important;
-    color: #f3f4f6 !important;
-    border-color: #4b5563 !important;
-  }
-  
   // Alert links should be properly styled
   .alert a, .alert .alert-link {
     color: inherit !important;
@@ -2490,7 +2372,6 @@ body.dark {
   .social-icon a,
   .btn-outline-primary,
   button,
-  .js-dark-toggle a,
   h2 a,
   h3 a,
   h4 a,
@@ -2508,15 +2389,14 @@ body.dark {
   .btn:hover, 
   .badge:hover,
   .btn-links a:hover,
-  .navbar-nav a:hover:not(.js-dark-toggle),
-  #navbar-main a:hover:not(.js-dark-toggle),
+  .navbar-nav a:hover,
+  #navbar-main a:hover,
   #navbar-content a:hover,
   .section-heading a:hover,
   .portrait-title a:hover,
   .social-icon a:hover,
   .btn-outline-primary:hover,
-  button:hover:not(.read-more-btn),
-  .js-dark-toggle a:hover,
+  button:hover,
   h2 a:hover,
   h3 a:hover,
   h4 a:hover,
@@ -2559,7 +2439,6 @@ body.dark {
   }
 }
 
-
 // On scroll and only in desktop view, highlight section headings, tags in articles, bio info (name, title, email, socials), and the tag cloud at the bottom of the site. This work depends on CSS code in custom.scss, and JS code in academic.js.
 
 @media (min-width: 992px) {
@@ -2570,7 +2449,6 @@ body.dark {
     transition: all 0.03s ease-in-out;
   }
   
-
   div.col-12.col-lg-4.section-heading.visible, div.col-12.col-lg-4.section-heading > h1.visible {
     opacity: 1;
     transform: translateY(0);
@@ -2591,7 +2469,6 @@ body.dark {
       color: var(--text-secondary);
     }
   }
-  
   
   div.article-container.pt-3 > div.btn-links.mb-3 > a:link.visible, button.visible:not(.full-text-btn), button:not(.full-text-btn) > h3.visible, div.btn-links.mb-3 > button.visible:not(.full-text-btn), #top > div.pub > div > a > button.visible:not(.full-text-btn) {
     opacity: 1;
@@ -2614,7 +2491,6 @@ body.dark {
     }
   }
   
-  
   .portrait-title > h3.visible, .social-icon.visible {
     opacity: 1;
     transform: translateY(0);
@@ -2635,7 +2511,6 @@ body.dark {
       color: var(--accent-tertiary);
     }
   }
-  
   
   .tag-cloud > a:link.visible {
     opacity: 1;
@@ -2732,7 +2607,6 @@ body.dark {
   }
 
 }
-
 
 // Profile subsections
 
@@ -3054,8 +2928,6 @@ and from bio portrait information. */
     left: 0 !important;
     right: auto !important;
     width: 40% !important;
-    min-width: 160px !important;
-    max-width: 220px !important;
     background-color: #1e293b !important;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
     z-index: 1020 !important;
@@ -3069,7 +2941,6 @@ and from bio portrait information. */
     width: 40% !important;
     min-width: 160px !important;
     max-width: 220px !important;
-    margin-left: 0 !important;
   }
   
   .navbar-collapse .navbar-nav {
@@ -3191,11 +3062,6 @@ and from bio portrait information. */
     margin-left: 0.08rem !important;
     display: flex !important;
     align-items: center !important;
-  }
-  
-  .navbar-toggler .navbar-toggler-icon {
-    width: 28px !important;
-    height: 28px !important;
   }
   
   // Align right-side icons at same vertical level as other navbar content
@@ -3344,7 +3210,7 @@ and from bio portrait information. */
     margin: 0 !important;
   }
   
-  .navbar-nav .nav-link:not(.js-search):not(.js-dark-toggle):not([class*="dropdown"]) {
+  .navbar-nav .nav-link:not(.js-search):not(.js-theme-toggle):not(.js-font-size-toggle):not([class*="dropdown"]) {
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
   }
@@ -3462,7 +3328,7 @@ section.home-section:first-of-type {
 // Reduce margin above first publication title on home page (desktop)
 @media (min-width: 992px) {
   #publication > div > div > div:nth-child(2) > div:nth-child(1) > div.media-body > h3 {
-    margin-top: -0.5rem !important;
+    margin-top: -0.3rem !important;
   }
 }
 
@@ -3498,19 +3364,9 @@ section.home-section:first-of-type {
   margin-bottom: 3.5rem !important;
 }
 
-// Override for publication pages: reduce bottom margin
-html body.page-publication #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 {
-  margin-bottom: 1rem !important;
-}
-
 // Increase bottom margin for featured-image div
 #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 > div {
   margin-bottom: 3rem !important;
-}
-
-// Override for publication pages: reduce bottom margin for featured-image wrapper
-html body.page-publication #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 {
-  margin-bottom: 1rem !important;
 }
 
 // Apply sizing and margin to publication page featured images
@@ -3531,13 +3387,6 @@ html body.page-publication #top > div.pub > div.article-header.article-container
   margin-right: auto !important;
 }
 
-// Override for publication pages: increase bottom margin for featured-image div
-html body.page-publication #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 > div {
-  margin-bottom: 3rem !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-}
-
 // Override margin-bottom for presentation pages
 html body.page-wrapper #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 {
   margin-bottom: 4rem !important;
@@ -3548,32 +3397,6 @@ html body.page-wrapper #top > div.pub > div.article-header.featured-image-wrappe
   margin-top: 6rem !important;
 }
 
-// Reduce margin under featured image in pub pages (except presentation pages)
-html body.page-publication #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 > div > img {
-  margin-bottom: 0 !important;
-  max-width: 100% !important;
-  max-height: 400px !important;
-  width: auto !important;
-  height: auto !important;
-  object-fit: contain !important;
-  display: block !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-// Reduce margin under featured-image itself on publication pages
-html body.page-publication .featured-image {
-  margin-bottom: 2rem !important;
-  max-width: 100% !important;
-  max-height: 400px !important;
-  width: auto !important;
-  height: auto !important;
-  object-fit: contain !important;
-  display: block !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
 // Increase margin above and below featured image on presentation pages
 .page-wrapper #top > div.pub > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 > div > img {
   margin-top: 0.25rem !important;
@@ -3582,11 +3405,6 @@ html body.page-publication .featured-image {
 
 // Increase margin above featured-image-wrapper in article pages
 #top > article > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 {
-  margin-top: 3.5rem !important;
-}
-
-// Increase top margin for featured images on applications-and-dashboards pages
-.page-applications-and-dashboards #top > article > div.article-header.article-container.featured-image-wrapper.mt-4.mb-4 {
   margin-top: 3.5rem !important;
 }
 
@@ -3821,28 +3639,28 @@ h3 {
   margin-top: 1rem !important;
 }
 
-#blog > div > div > div:nth-child(2) > div > div.media-body.is-expanded > a {
+#blog > div > div > div.col-12 > div > div.media-body.is-expanded > a {
   margin-bottom: 0.5rem !important;
   margin-top: 0.8rem !important;
 }
 
-#applications-and-dashboards > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata {
+#applications-and-dashboards > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata {
   margin-top: 0.7rem !important;
   margin-bottom: 0.7rem !important;
   line-height: 1.4 !important;
 }
 
-#applications-and-dashboards > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div {
+#applications-and-dashboards > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div {
   margin-top: 0 !important;
   font-size: 0.85rem !important;
   line-height: 1.4 !important;
 }
 
-#applications-and-dashboards > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata * {
+#applications-and-dashboards > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata * {
   line-height: 1.4 !important;
 }
 
-#applications-and-dashboards > div > div > div:nth-child(2) > div > div.media-body.is-expanded > a {
+#applications-and-dashboards > div > div > div.col-12 > div > div.media-body.is-expanded > a {
   margin-top: 1rem !important;
 }
 
@@ -4149,8 +3967,6 @@ body.dark .theme-menu .dropdown-item:hover {
   padding-top: 0 !important;
 }
 
-
-
 // Navbar brand hover styling for both light and dark themes
 .navbar-brand:hover {
   color: #5f9ea0 !important; // Dark aquamarine
@@ -4233,11 +4049,6 @@ body.dark .navbar-collapse .nav-link,
 body.dark .navbar-collapse .navbar-nav .nav-link {
   color: #0f172a !important;
   background-color: #e2e8f0 !important;
-}
-
-// Dark theme navbar toggler icon
-body.dark .navbar-toggler-icon {
-  filter: invert(0);
 }
 
 // Increase mobile menu icon size (Font Awesome fa-bars)
@@ -4366,10 +4177,14 @@ div.col-12.col-lg-4.section-heading > h1, #navbar-content > ul > li > a {
   transition: color 0.1s ease; // Fast transition to reduce lag
 }
 
-// Fixed positioning for hover underlines - centered under text
-.navbar-nav .nav-link:hover:not(.active):not(.js-dark-toggle):not(.js-search)::after,
+// Fixed positioning for hover underlines - centered under text.
+// Exclude the icon toggle buttons (theme + font size): they are <button> controls,
+// not page links, so they must never get the nav underline bar. NB the class is
+// .js-theme-toggle (the old :not(.js-dark-toggle) guard was stale and never matched,
+// which is why the theme toggle showed a stray hover underline).
+.navbar-nav .nav-link:hover:not(.active):not(.js-theme-toggle):not(.js-font-size-toggle):not(.js-search)::after,
 #navbar-content > ul > li > a:hover:not(.active)::after,
-.nav-link:hover:not(.active):not(.js-dark-toggle):not(.js-search)::after {
+.nav-link:hover:not(.active):not(.js-theme-toggle):not(.js-font-size-toggle):not(.js-search)::after {
   content: '';
   position: absolute;
   bottom: -3px; // Positioned closer to words but not too close
@@ -4380,6 +4195,22 @@ div.col-12.col-lg-4.section-heading > h1, #navbar-content > ul > li > a {
   background-color: var(--nav-hover); // Green for hover underline
   display: block;
   transition: all 0.1s ease; // Fast transition to reduce lag
+}
+
+// Safeguard: never underline (nav bar or text-decoration) any active/hovered/focused
+// BUTTON in the navbar, at any viewport. Buttons (theme/font-size/search toggles) are
+// controls, not page links. ID-scoped so it wins over the hover/active ::after rules.
+#navbar-main .navbar-nav button.nav-link::after,
+#navbar-main .navbar-nav button.nav-link:hover::after,
+#navbar-main .navbar-nav button.nav-link:focus::after,
+#navbar-main .navbar-nav button.nav-link.active::after {
+  content: none !important;
+  display: none !important;
+}
+#navbar-main .navbar-nav button.nav-link:hover,
+#navbar-main .navbar-nav button.nav-link:focus,
+#navbar-main .navbar-nav button.nav-link.active {
+  text-decoration: none !important;
 }
 
 // 4. Ensure span elements inside links also get the right colors
@@ -4581,7 +4412,7 @@ body.dark h3 a:hover, body.dark div a:hover {
 }
 
 // Increase top margin for publication btn-links on home page
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links {
+#publication > div > div > div.col-12 > div > div.media-body > div.btn-links {
   margin-top: -0.5rem !important;
 }
 
@@ -4634,18 +4465,17 @@ body.dark #applications-and-dashboards > div > div > div.col-12 > div > div.medi
 }
 
 // Reduce bottom margin for publication article-metadata on home page
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata {
   margin-top: 0.2rem !important;
   margin-bottom: -0.05rem !important;
 }
 
 // Reduce bottom margin for publication article-metadata div on home page
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div {
   margin-top: 2.5rem !important;
   padding-top: 0.25rem !important;
   padding-bottom: 0 !important;
   margin-bottom: -3.8rem !important;
-  font-size: 0.92rem !important;
 }
 
 // Increase bottom margin for publication items
@@ -4766,8 +4596,8 @@ article #top > div.pub > div.article-container.pt-3 > div.btn-links.mb-3 {
 #bio > div > div > div.col-12.col-lg-8 > div.row > div > ul > li > div > p,
 div > div > div > table > tbody > tr > td,
 :is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body > div.article-style,
-:is(#publication, #applications-and-dashboards, #blog) > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div,
-:is(#publication, #applications-and-dashboards, #blog) > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span,
+:is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div,
+:is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span,
 :is(#publication, #applications-and-dashboards, #blog) .stream-meta.article-metadata,
 :is(#publication, #applications-and-dashboards, #blog) .stream-meta.article-metadata * {
   font-size: #{"clamp(15px, 0.85vw + 0.2rem, 15.5px)"} !important;
@@ -4817,28 +4647,6 @@ div > div > div > table > tbody > tr > td,
     pointer-events: none;
   }
   
-  // Arrow indicators on sides of Expand button
-  // Hidden by default, shown on hover
-  .expand-arrow {
-    position: absolute;
-    bottom: 4px;
-    font-size: 0.7em;
-    color: #888;
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.2s ease;
-    line-height: 1;
-  }
-  
-  .expand-arrow-left {
-    right: calc(50% + 50px);
-  }
-  
-  .expand-arrow-right {
-    left: calc(50% + 50px);
-  }
-  
   // Hover effect for the entire abstract - show button and arrows
   &:hover::before {
     content: '▼▼▼      Expand summary      ▼▼▼';
@@ -4848,10 +4656,6 @@ div > div > div > table > tbody > tr > td,
     transform: translateX(-50%) scale(1.03);
   }
   
-  &:hover .expand-arrow {
-    opacity: 1;
-    color: #555;
-  }
 }
 
 // Dark theme: invert Expand button colours
@@ -4868,15 +4672,6 @@ body.dark :is(#publication, #applications-and-dashboards, #blog) > div > div > d
   opacity: 1;
 }
 
-// Dark theme: arrow colors (white for visibility)
-body.dark :is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body > div.article-style .expand-arrow {
-  color: #fff;
-}
-
-body.dark :is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body > div.article-style:hover .expand-arrow {
-  color: #eee;
-}
-
 // Specific gradient for applications-and-dashboards section (even section with different background)
 #applications-and-dashboards > div > div > div.col-12 > div > div.media-body > div.article-style::after {
   background: linear-gradient(to bottom, transparent 0%, rgba(247, 250, 252, 0.7) 40%, rgba(247, 250, 252, 0.95) 70%, rgba(247, 250, 252, 1) 100%);
@@ -4885,11 +4680,6 @@ body.dark :is(#publication, #applications-and-dashboards, #blog) > div > div > d
 // Remove fade gradient and button when expanded
 :is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body.is-expanded > div.article-style::after,
 :is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body.is-expanded > div.article-style::before {
-  display: none;
-}
-
-// Hide arrows when expanded
-:is(#publication, #applications-and-dashboards, #blog) > div > div > div.col-12 > div > div.media-body.is-expanded > div.article-style .expand-arrow {
   display: none;
 }
 
@@ -5032,58 +4822,6 @@ body.dark .home-section a.view-complete-content-btn {
   }
 }
 
-.toolbar-buttons {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-
-.doc-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background-color: transparent;
-  color: var(--text-hover) !important;
-  border: none;
-  border-radius: 50%;
-  text-decoration: none !important;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1em;
-  
-  i {
-    font-size: 1em;
-  }
-  
-  &:hover {
-    background-color: var(--bg-button-hover) !important;
-    transform: scale(1.15);
-  }
-  
-  &:active {
-    transform: scale(1.05);
-  }
-  
-  &:focus {
-    outline: 2px solid var(--accent-primary);
-    outline-offset: 2px;
-  }
-}
-
-// Separator between button groups
-.doc-btn:nth-child(2)::after {
-  content: '';
-  position: absolute;
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1px;
-  height: 20px;
-  background-color: var(--border-color);
-}
-
 // Dark theme adjustments for document viewer
 body.dark .document-viewer-container {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -5125,7 +4863,7 @@ body.dark .document-viewer-toolbar {
 }
 
 // Reduce top margin for blog stream-meta container
-#blog > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata {
+#blog > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata {
   margin-top: 0 !important;
 }
 
@@ -5137,12 +4875,12 @@ body.dark .document-viewer-toolbar {
 // (expanded state) — the overlap reported by the user. Use margin-top:0 so the
 // row behaves exactly like non-scholar blog rows: the cap clears the grey bar by
 // ~8px and sits below the abstract text, while staying centred on the year.
-#blog > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata.scholar-meta-row {
+#blog > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata.scholar-meta-row {
   margin-top: 0 !important;
 }
 
 // Decrease top margin for blog metadata on home page
-#blog > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div {
+#blog > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div {
   margin-top: 0rem !important;
 }
 
@@ -5174,13 +4912,13 @@ body.dark .document-viewer-toolbar {
 }
 
 // Increase font size for article date on home page
-#blog > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span.article-date {
+#blog > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span.article-date {
   font-size: 0.85rem !important;
   margin-top: 0.3rem !important;
 }
 
 // Increase font size and decrease top margin for metadata spans on home page
-#blog > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span {
+#blog > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span {
   font-size: 0.9rem !important;
   margin-top: 0.4rem !important;
 }
@@ -5340,7 +5078,7 @@ article .article-metadata {
 }
 
 // Increase font size for blog metadata first span
-#blog > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span:nth-child(1) > span {
+#blog > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span:nth-child(1) > span {
   font-size: 0.85rem !important;
   margin-top: 0.3rem !important;
 }
@@ -5355,11 +5093,6 @@ article .article-metadata {
   margin-bottom: 0.1rem !important;
 }
 
-// Override for publication pages - larger font
-body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-metadata {
-  font-size: 2rem !important;
-}
-
 #top div.media-body > div.article-style {
   font-size: 90%;
 }
@@ -5368,13 +5101,6 @@ body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-
 #top > div.pub > div.article-container.pt-3 > div.article-metadata > span.article-categories {
   font-size: 80%;
 }
-
-// Override for publication pages - larger categories font
-body.page-publication #top > div.pub > div.article-container.pt-3 > div.article-metadata > span.article-categories {
-  font-size: 2rem !important;
-}
-
-
 
 // Increase padding under h3 headings
 h3 {
@@ -5390,7 +5116,6 @@ p {
 ul > li {
   margin-bottom: -0.5%;
 }
-
 
 // STICKY TABLE HEADERS - DISABLED
 
@@ -5416,7 +5141,6 @@ body.dark table th, body.dark table thead th {
   }
 }
 */
-
 
 // LINKS
 
@@ -5792,7 +5516,6 @@ body.dark .article-tags a.ancillary-tag:visited {
   opacity: 1 !important;
 }
 
-
 // Social icons on the left-hand side of the bio section
 #profile > div > div > span > span > a > i:hover {
   color: var(--accent-primary) !important;
@@ -5833,7 +5556,7 @@ a > i:hover, #profile > div > div > span > span > a:hover, #navbar-main > div > 
 }
 
 // Buttons, full text buttons, dashboard/application button
-button:hover:not(.read-more-btn), #top > div.pub > div > a > button:hover, #top > div.pub > div > div.article-style > a > button:hover, #top > article > div > div.article-style > a > button:hover {
+button:hover, #top > div.pub > div > a > button:hover, #top > div.pub > div > div.article-style > a > button:hover, #top > article > div > div.article-style > a > button:hover {
   background-color: var(--bg-button-hover) !important;
 }
 
@@ -5861,7 +5584,6 @@ kbd {
   padding: 0.09em 0.4em 0.11em 0.4em;
   text-shadow: 0 1px 0 #fff;
 }
-
 
 // Bootstrap warning alert messages
 div.alert.alert-warning {
@@ -5913,6 +5635,23 @@ div.emgithub-file.emgithub-file-dark > div.file-data.hljs-style-a11y-dark > div 
   margin-bottom: 6%;
 }
 
+// Let emgithub embeds scroll horizontally on narrow viewports instead of clipping.
+// The file box uses overflow-x:hidden, so anything wider than the column (the long
+// full-path header, or long code lines) was cut off with no scrollbar on mobile.
+div.emgithub-file {
+  overflow-x: auto !important;
+  max-width: 100% !important;
+}
+
+// Preserve emgithub's a11y-dark palette in dark mode too: the body.dark `code, pre`
+// override forces slate #1e293b, so the same embed looked different light vs dark.
+body.dark div.emgithub-file pre,
+body.dark div.emgithub-file pre code {
+  background-color: #2b2b2b !important; // a11y-dark background (as shown in light mode)
+  color: #f8f8f2 !important;
+  border-color: transparent !important;
+}
+
 // remove love icon from emgithub chunk footnote
 div.emgithub-file.emgithub-file-dark > div.file-meta.file-meta-dark > span {
   display: none;
@@ -5947,7 +5686,6 @@ div.lds-ring:after {
   text-align: center; /* Centers the text within the element */
   width: fit-content; /* Adjust the width to the text content */
 }
-
 
 // Hanging indentation for references
 // .Rmd posts (Pandoc): <div id="references"><h2>…</h2><p>…</p></div>
@@ -5992,18 +5730,15 @@ h2#reference  ~ p, h3#reference  ~ p, h4#reference  ~ p {
   padding-left: 0.7em;
 }
 
-
 // scroll bar for textarea
 textarea {
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-
 // margin after code snippets
 pre {
   margin-bottom: 5%;
 }
-
 
 // in desktop view only
 @media (min-width: 1000px) {
@@ -6044,7 +5779,6 @@ pre {
     }
   }
 }
-
 
 /* Enable gallery with modal windows for images */
 
@@ -6125,7 +5859,6 @@ pre {
     top: 10px; /* Ensure top margin is visible */
 }
 
-
 /* Navigation Arrows */
 .prev, .next {
     position: absolute;
@@ -6203,13 +5936,6 @@ pre {
     }
 }
 
-
-// Remove Disqus heart icon and count
-#favorite-button > div {
-  visibility: hidden;
-}
-
-
 // External script toggling
 
 .script-container {
@@ -6241,7 +5967,6 @@ pre {
   transform: scale(0.95);
 }
 
-
 // Full text button
 
 .full-text-btn {
@@ -6267,19 +5992,6 @@ pre {
   border-color: var(--border-full-text-hover);
   box-shadow: 0 0 0 2px var(--bg-button-hover);
   border-radius: 12px; /* Ensures corners stay rounded */
-}
-.full-text-btn .full-text {
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 1em;
-  font-weight: 400 !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif !important;
-  line-height: 1.5 !important;
-  letter-spacing: normal !important;
-}
-.full-text-btn .full-text i {
-  margin-right: 8px;
-  color: #dc2626;
 }
 // Prevent h3 hover styles from affecting button text
 .full-text-btn:hover .full-text,
@@ -6318,7 +6030,6 @@ body.dark .full-text-btn a:focus,
   border: none !important;
 }
 
-
 // CV button
 
 // Add top margin only to the first btn-links container (which contains CV button)
@@ -6356,7 +6067,6 @@ body.dark .full-text-btn a:focus,
   color: var(--text-secondary);
   margin-right: 8px;
 }
-
 
 // Multimedia section collapsible summaries - matches the pub-abstract collapsed style
 // Collapsed by default, expandable on click with fade gradient and hover button
@@ -6530,13 +6240,6 @@ body.dark .nav-link.active {
   font-weight: normal !important;
 }
 
-// Nuclear option - extremely specific selector for dark theme
-html body.dark .navbar-nav .nav-link.active,
-html body.dark #navbar-main .navbar-nav .nav-link.active,
-html body.dark .navbar-collapse .navbar-nav .nav-link.active {
-  font-weight: 300 !important; // Use lighter weight to ensure no bold
-}
-
 .dark .navbar-nav .nav-link.active::after,
 .dark .navbar-nav .nav-item .nav-link.active::after,
 body.dark .navbar-nav .nav-link.active::after,
@@ -6635,7 +6338,6 @@ body div .avatar-circle img,
   -webkit-transform-origin: center center !important;
   -moz-transform-origin: center center !important;
   -ms-transform-origin: center center !important;
-  border: none !important;
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
@@ -6654,7 +6356,6 @@ body div .avatar-circle img,
 .portrait .avatar-circle,
 div.avatar.avatar-circle,
 div.avatar-circle {
-  border: none !important;
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
@@ -6765,35 +6466,8 @@ body.dark .search-results h3 a:hover {
   color: inherit !important; // Use the colors defined above
 }
 
-////////////////////////////
-// Navigation Icon Colors (Search & Theme Toggle)
-////////////////////////////
-
-// Default grey color for search icon and theme toggle
-.navbar-nav .nav-link.js-search,
-.navbar-nav .nav-link.js-dark-toggle {
-  color: var(--nav-text) !important; // Use default grey
-}
-
-// Keep current hover colors for search icon and theme toggle
-.navbar-nav .nav-link.js-search:hover {
-  color: var(--nav-hover-text) !important; // Current hover color
-}
-
-.navbar-nav .nav-link.js-dark-toggle:hover {
-  color: var(--nav-hover-text) !important; // Current hover color
-}
-
-// Dark theme
-body.dark .navbar-nav .nav-link.js-search,
-body.dark .navbar-nav .nav-link.js-dark-toggle {
-  color: var(--nav-text) !important; // Use default grey
-}
-
-body.dark .navbar-nav .nav-link.js-search:hover,
-body.dark .navbar-nav .nav-link.js-dark-toggle:hover {
-  color: var(--nav-hover-text) !important; // Current hover color
-}
+// (Removed dead navbar icon-colour rules for .js-search and .js-dark-toggle: the navbar
+// search is gated off and the theme toggle is .js-theme-toggle, so neither class renders.)
 
 ////////////////////////////
 // Search Close Icon Styling
@@ -7115,7 +6789,6 @@ html body.dark .search-hit a h6 {
   }
 }
 
-
 // Create class to disable automatic bullet list formatting
 
 .no-bullets {
@@ -7424,14 +7097,6 @@ table caption {
   padding-top: -1rem !important;
 }
 
-/* Remove left and right padding from container in mobile view on publications page */
-@media (max-width: 991px) {
-  body.page-publications #top > div.container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-}
-
 /* Reduce margins around publication page title and align with search field */
 #top > div.universal-wrapper.pt-3 > h1 {
   margin-top: 0.5rem !important;
@@ -7451,9 +7116,6 @@ table caption {
 }
 
 /* Increase bottom margin for paragraph on presentation page */
-body.page-collection #top > div.universal-wrapper.pt-3 > p {
-  margin-bottom: 2rem !important;
-}
 
 /* In mobile view, align heading left to match search field */
 @media (max-width: 991px) {
@@ -7499,59 +7161,59 @@ body.page-collection #top > div.universal-wrapper.pt-3 > p {
 }
 
 /* Adjust publication metadata and button link font sizes */
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div {
   font-size: 0.85rem !important;
 }
 
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span:nth-child(1) > span {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span:nth-child(1) > span {
   font-size: 0.9rem !important;
 }
 
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span:nth-child(1) > span > strong {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span:nth-child(1) > span > strong {
   font-size: 0.9rem !important;
 }
 
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span.article-date {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span.article-date {
   font-size: 0.9rem !important;
 }
 
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span.pub-publication {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span.pub-publication {
   font-size: 0.9rem !important;
 }
 
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.stream-meta.article-metadata > div > span.pub-publication > em {
+#publication > div > div > div.col-12 > div > div.media-body > div.stream-meta.article-metadata > div > span.pub-publication > em {
   font-size: 0.9rem !important;
 }
 
-#publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links {
+#publication > div > div > div.col-12 > div > div.media-body > div.btn-links {
   font-size: 1.25rem !important;
 }
 
 /* Ultra-specific override to ensure font size applies */
-body #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links {
+body #publication > div > div > div.col-12 > div > div.media-body > div.btn-links {
   font-size: 0.8rem !important;
   line-height: 1.3 !important;
 }
 
-body #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links a,
-body #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links button {
+body #publication > div > div > div.col-12 > div > div.media-body > div.btn-links a,
+body #publication > div > div > div.col-12 > div > div.media-body > div.btn-links button {
   font-size: 0.8rem !important;
   line-height: 1.3 !important;
 }
 
 /* In mobile view, increase button links font size */
 @media (max-width: 991px) {
-  #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links {
+  #publication > div > div > div.col-12 > div > div.media-body > div.btn-links {
     font-size: 1.3rem !important;
   }
   
-  body #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links {
+  body #publication > div > div > div.col-12 > div > div.media-body > div.btn-links {
     font-size: 0.8rem !important;
     line-height: 1.3 !important;
   }
   
-  body #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links a,
-  body #publication > div > div > div:nth-child(2) > div > div.media-body > div.btn-links button {
+  body #publication > div > div > div.col-12 > div > div.media-body > div.btn-links a,
+  body #publication > div > div > div.col-12 > div > div.media-body > div.btn-links button {
     font-size: 0.8rem !important;
     line-height: 1.3 !important;
   }
@@ -7738,11 +7400,6 @@ body.page-wrapper .article-container {
   padding-top: 0.5rem !important;
 }
 
-// Increase bottom margin for iframes in presentation article content
-#top > div.pub > div > div.article-style > iframe {
-  margin-bottom: 2rem !important;
-}
-
 // Reduce bottom margin for buttons in presentation article content
 #top > div.pub > div:nth-child(2) > div.article-style > a > button {
   margin-bottom: 0.5rem !important;
@@ -7844,11 +7501,6 @@ body.dark #top > div.pub > div:nth-child(3) > div.article-style > a > button:foc
   margin-top: 1rem !important;
 }
 
-// Reduce margin above featured-image on applications-and-dashboards pages
-.page-applications-and-dashboards .featured-image {
-  margin-top: 2rem !important;
-}
-
 // Reduce height of mobile spacer on presentation pages
 .d-md-none.space-below {
   height: 0 !important;
@@ -7874,42 +7526,6 @@ body.dark #top > div.pub > div:nth-child(3) > div.article-style > a > button:foc
 
 .media.stream-item {
   margin-bottom: 0.5rem !important;
-}
-
-// Desktop view: enforce max-width for entire page on tags/categories/presentation pages
-@media (min-width: 992px) {
-  body.page-collection #top .container {
-    max-width: 750px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-  
-  body.page-taxonomy #top .container {
-    max-width: none !important;
-    margin-left: 8rem !important;
-    margin-right: auto !important;
-  }
-  
-  // Enforce max-width on taxonomy page content divs
-  body.page-taxonomy #top > div:not(.container) {
-    max-width: 750px !important;
-  }
-  
-  body.page-taxonomy #top > div > div {
-    max-width: 750px !important;
-  }
-  
-  // Make taxonomy page titles bold - removed duplicate
-  
-  // Move content further in on tags and categories pages
-  body.page-taxonomy #top > div.universal-wrapper.pt-3 > h1,
-  body.page-taxonomy #top > div.universal-wrapper.pt-3 > p {
-    margin-left: 0 !important;
-  }
-  
-  body.page-taxonomy #top > div > div > h2 {
-    margin-left: 0 !important;
-  }
 }
 
 // Decrease spacing above superscript in article paragraphs
