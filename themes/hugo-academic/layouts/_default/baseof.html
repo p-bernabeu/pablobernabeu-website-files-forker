@@ -8,6 +8,9 @@
 
   {{ partial "navbar" . }}
 
+  {{/* custom.scss carries ~150 rules anchored on body's direct children, 12 of them
+       positional (#top > div:nth-child(n)). Inserting an element here, or wrapping the
+       content in a landmark, silently detaches all of them. Keep this level flat. */}}
   {{ block "main" . }}{{ end }}
 
   {{ partial "site_js" . }}
