@@ -54,6 +54,22 @@
   }
 
   /**
+   * First descendant link whose href points at a DOI. Equivalent to
+   * querySelector('a[href*="doi.org/"]'), which is run once per reference and
+   * again per reference for the self-citation sweep; the selector engine's
+   * attribute-substring matcher is the expensive part, and a tag lookup over a
+   * citation paragraph's handful of links does the same job.
+   */
+  function findDoiLink(el) {
+    var links = el.getElementsByTagName('a');
+    for (var i = 0; i < links.length; i++) {
+      var href = links[i].getAttribute('href');
+      if (href && href.indexOf('doi.org/') !== -1) return links[i];
+    }
+    return null;
+  }
+
+  /**
    * Wrap the journal name and volume number in <em> tags for APA 7 citations
    * that came through as plain text (e.g. from CrossRef content negotiation).
    * Pattern targeted: ". Journal Name, Volume[(Issue)][, Pages]. <a href"
@@ -133,7 +149,7 @@
     if (pageDoi) {
       var allPs = hangingIndent.querySelectorAll('p');
       for (var si = 0; si < allPs.length; si++) {
-        var selfLink = allPs[si].querySelector('a[href*="doi.org/"]');
+        var selfLink = findDoiLink(allPs[si]);
         if (selfLink) {
           var sm = selfLink.getAttribute('href').match(/doi\.org\/(.+)$/);
           if (sm && decodeURIComponent(sm[1]).toLowerCase() === pageDoi) {
@@ -187,6 +203,69 @@
     var types = {};
     var hasAnyDoi = false;
 
+    // The action bar differs between references only in whether the Abstract
+    // and Export buttons are present and in the two search URLs. Parsing the
+    // same markup once per reference costs an HTML parse per reference (7,259
+    // of them on the largest page); build the four shapes once and clone.
+    var actionTemplates = {};
+    function actionTemplate(hasAbstract, hasDoi) {
+      var key = (hasAbstract ? 'a' : '-') + (hasDoi ? 'd' : '-');
+      if (actionTemplates[key]) return actionTemplates[key];
+      var html = '<span class="reference-actions">';
+      if (hasAbstract) {
+        html += '<button class="ref-btn ref-abstract-btn" aria-expanded="false">' +
+          '<i class="fas fa-align-left"></i> Abstract</button>';
+      }
+      html += '<button class="ref-btn ref-copy-btn" title="Copy citation">' +
+        '<i class="fas fa-copy"></i> Copy</button>';
+      if (hasDoi) {
+        html += '<button class="ref-btn ref-export-btn" title="Export as BibTeX">' +
+          '<i class="fas fa-download"></i> Export</button>';
+      }
+      html += '<span class="ref-icon-pair">' +
+        '<button class="ref-search-icon-btn" data-url="" title="Search on Google Scholar">' +
+        '<img src="/img/google-scholar-favicon.png" alt="Scholar" width="22" height="22" class="ref-search-logo"></button>' +
+        '<button class="ref-search-icon-btn" data-url="" title="Search on Google">' +
+        '<img src="/img/google-favicon.png" alt="Google" width="22" height="22" class="ref-search-logo"></button>' +
+        '</span></span>';
+      var holder = document.createElement('div');
+      holder.innerHTML = html;
+      actionTemplates[key] = holder.firstChild;
+      return actionTemplates[key];
+    }
+
+    /**
+     * Give a reference its relevance badge and action bar, once, the first time
+     * the filters decide to show it. Building these eagerly added roughly eight
+     * elements to each of 7,259 references, and the browser then had to lay out
+     * and paint a document of ~89,000 nodes; only the 1,000 within the display
+     * cap are ever on screen. The Abstract button's presence is read from the
+     * live attribute rather than a cached flag, so a reference whose abstract
+     * arrived from CrossRef in the meantime still gets one.
+     */
+    function ensureDecorated(ref) {
+      var el = ref.el;
+      if (ref.relevance != null && !ref._badge) {
+        var badge = document.createElement('span');
+        badge.className = 'ref-relevance ' + relevanceClass(ref.relevance);
+        badge.title = 'Estimated relevance to this publication';
+        badge.textContent = ref.relevance + '%';
+        el.appendChild(badge);
+        ref._badge = badge;
+      }
+      if (ref._actionsBuilt) return;
+      ref._actionsBuilt = true;
+      var actions = actionTemplate(!!el.getAttribute('data-abstract'), !!ref.doi)
+        .cloneNode(true);
+      // The icon pair is the template's last child and holds the two search
+      // buttons in a fixed order, so the URLs can be filled in without a
+      // selector lookup.
+      var iconPair = actions.lastChild;
+      iconPair.children[0].setAttribute('data-url', ref.scholarUrl);
+      iconPair.children[1].setAttribute('data-url', ref.googleUrl);
+      el.appendChild(actions);
+    }
+
     for (var i = 0; i < paragraphs.length; i++) {
       var p = paragraphs[i];
       var text = p.textContent || '';
@@ -205,7 +284,7 @@
 
       // Extract DOI
       var doi = null;
-      var doiLink = p.querySelector('a[href*="doi.org/"]');
+      var doiLink = findDoiLink(p);
       if (doiLink) {
         var href = doiLink.getAttribute('href');
         var m = href.match(/doi\.org\/(.+)$/);
@@ -228,7 +307,7 @@
       }
 
       var pType = p.getAttribute('data-type') || '';
-      var hasAbstract = !!p.getAttribute('data-abstract');
+      var abstractForSearch = p.getAttribute('data-abstract') || '';
 
       if (year) p.setAttribute('data-year', year);
       if (doi) { p.setAttribute('data-doi', doi); hasAnyDoi = true; }
@@ -237,21 +316,6 @@
       // Track types for filter dropdown
       if (pType) types[pType] = (types[pType] || 0) + 1;
 
-      // Inject buttons inline — always visible
-      var actionsHtml = '<span class="reference-actions">';
-      // Abstract button: only when abstract is already known.
-      // backgroundPrefetch will inject the button later if CrossRef
-      // returns an abstract for this DOI.
-      if (hasAbstract) {
-        actionsHtml += '<button class="ref-btn ref-abstract-btn" aria-expanded="false">' +
-          '<i class="fas fa-align-left"></i> Abstract</button>';
-      }
-      actionsHtml += '<button class="ref-btn ref-copy-btn" title="Copy citation">' +
-        '<i class="fas fa-copy"></i> Copy</button>';
-      if (doi) {
-        actionsHtml += '<button class="ref-btn ref-export-btn" title="Export as BibTeX">' +
-          '<i class="fas fa-download"></i> Export</button>';
-      }
       // Extract title (text after "(YEAR). " up to first sentence-ending punctuation)
       // Extract author surnames (before the year parenthetical)
       var surnamesStr = '';
@@ -264,21 +328,18 @@
       if (titleForSearch) queryParts.push('"' + titleForSearch + '"');
       if (doi) queryParts.push('"' + doi + '"');
       var searchQuery = encodeURIComponent(queryParts.length ? queryParts.join(' ') : text.trim());
-      actionsHtml += '<span class="ref-icon-pair">' +
-        '<button class="ref-search-icon-btn" data-url="https://scholar.google.com/scholar?q=' + searchQuery +
-        '" title="Search on Google Scholar"><img src="/img/google-scholar-favicon.png" alt="Scholar" width="22" height="22" class="ref-search-logo"></button>' +
-        '<button class="ref-search-icon-btn" data-url="https://www.google.com/search?q=' + searchQuery +
-        '" title="Search on Google"><img src="/img/google-favicon.png" alt="Google" width="22" height="22" class="ref-search-logo"></button>' +
-        '</span>';
-      actionsHtml += '</span>';
-      p.insertAdjacentHTML('beforeend', actionsHtml);
-
-      // Include abstract text in searchable content
-      var abstractForSearch = p.getAttribute('data-abstract') || '';
+      // The action bar is not built here. Only the references the filters
+      // actually display are ever decorated (see ensureDecorated below), which
+      // on the largest page is 1,000 of 7,259.
       references.push({
         el: p,
         year: year,
         doi: doi,
+        // Captured before any decoration, so relevance scoring never sees the
+        // button labels that used to end up in the paragraph's textContent.
+        citationText: text,
+        scholarUrl: 'https://scholar.google.com/scholar?q=' + searchQuery,
+        googleUrl: 'https://www.google.com/search?q=' + searchQuery,
         searchText: (text + ' ' + abstractForSearch).toLowerCase(),
         sourceIndex: references.length
       });
@@ -349,7 +410,7 @@
     updateCount(toolbar, references.length, references.length);
     var ctrl = setupFiltering(
       toolbar, references, hangingIndent, minYear, maxYear,
-      RELATED_REFERENCES_DISPLAY_LIMIT
+      RELATED_REFERENCES_DISPLAY_LIMIT, ensureDecorated
     );
 
     var queryStr = scopusQueries
@@ -385,6 +446,9 @@
         for (var ri = 0; ri < references.length; ri++) {
           var ref = references[ri];
           if (ref.doi && expandedDois.indexOf(ref.doi) !== -1) {
+            // Restoring an expanded abstract needs the reference's own button,
+            // so decorate it now even if the filters have not reached it yet.
+            ensureDecorated(ref);
             var absBtn = ref.el.querySelector('.ref-abstract-btn');
             expandOne(ref.el, absBtn, function () {});
             anyExpanded = true;
@@ -620,7 +684,7 @@
   // =========================================================================
 
   function setupFiltering(toolbar, references, hangingIndent, defaultMinYear,
-                          defaultMaxYear, displayLimit) {
+                          defaultMaxYear, displayLimit, ensureDecorated) {
     var searchInput = toolbar.querySelector('.ref-search');
     var clearBtn = toolbar.querySelector('.ref-search-clear');
     var yearMinInput = toolbar.querySelector('.ref-year-min');
@@ -636,7 +700,6 @@
     var relevanceValueLabel = toolbar.querySelector('.ref-relevance-value');
     var currentSort = 'relevance';
     var relevanceReady = false;
-    var displayCapReady = false;
     displayLimit = Math.max(0, parseInt(displayLimit, 10) || 0);
 
     function compareRelevance(a, b) {
@@ -677,13 +740,18 @@
         var ref = references[i];
         var matchesFilters = true;
 
-        // Refresh searchText to include any abstract fetched after init
+        // Refresh searchText to include any abstract fetched after init. The
+        // check lowercases the whole abstract, so it is done only when the
+        // attribute differs from the value last seen; otherwise every filter
+        // pass allocates a lowercase copy of every abstract on the page.
         var absText = ref.el.getAttribute('data-abstract') || '';
-        var fullSearch = ref.searchText;
-        if (absText && fullSearch.indexOf(absText.toLowerCase().substring(0, 40)) === -1) {
-          fullSearch = fullSearch + ' ' + absText.toLowerCase();
-          ref.searchText = fullSearch;
+        if (absText && absText !== ref._absSeen) {
+          ref._absSeen = absText;
+          if (ref.searchText.indexOf(absText.toLowerCase().substring(0, 40)) === -1) {
+            ref.searchText = ref.searchText + ' ' + absText.toLowerCase();
+          }
         }
+        var fullSearch = ref.searchText;
         // All filters are cumulative (AND logic)
         if (query && fullSearch.indexOf(query) === -1) matchesFilters = false;
         if (matchesFilters && ref.year && (ref.year < yearMin || ref.year > yearMax)) matchesFilters = false;
@@ -695,10 +763,14 @@
         if (matchesFilters) matched.push(ref);
       }
 
-      // Do not impose an arbitrary source-order cap while relevance is still
-      // being calculated. Once ready, choose the top matches independently of
-      // the presentation sort so alphabetic/year views keep the same results.
-      var limitApplied = displayCapReady && displayLimit > 0 && matched.length > displayLimit;
+      // Cap from the very first pass. Rendering all 7,259 references for the
+      // few seconds until relevance is scored, only to hide 6,259 of them, cost
+      // far more than it was worth; until scores exist the top matches are
+      // taken in source order, which the count tooltip says explicitly. The
+      // selection is made independently of the presentation sort so that
+      // alphabetic and year views show the same references.
+      var limitApplied = displayLimit > 0 && matched.length > displayLimit;
+      var cutoffScore = null;
       if (limitApplied) {
         var ranked = matched.slice().sort(
           relevanceReady ? compareRelevance : compareSourceOrder
@@ -706,6 +778,10 @@
         for (var ri = 0; ri < displayLimit; ri++) {
           ranked[ri]._withinDisplayLimit = true;
         }
+        // The score of the last reference that made the cut. Anything the
+        // relevance filter admits below this is matched but not shown, which
+        // is what the count tooltip has to explain.
+        if (relevanceReady) cutoffScore = ranked[displayLimit - 1].relevance || 0;
       } else {
         for (var mi = 0; mi < matched.length; mi++) {
           matched[mi]._withinDisplayLimit = true;
@@ -716,14 +792,23 @@
       for (var vi = 0; vi < references.length; vi++) {
         var visibleRef = references[vi];
         var show = visibleRef._matchesFilters && visibleRef._withinDisplayLimit;
-        visibleRef.el.style.display = show ? '' : 'none';
+        if (show) ensureDecorated(visibleRef);
+        // Writing an inline style invalidates style and layout for that element
+        // even when the value is unchanged. Filters are re-applied several
+        // times during load, and most references keep the same visibility each
+        // time, so only write when it actually differs.
+        var wantDisplay = show ? '' : 'none';
+        if (visibleRef.el.style.display !== wantDisplay) {
+          visibleRef.el.style.display = wantDisplay;
+        }
 
         // Also hide/show any abstract panel
         var refPid = visibleRef.el.getAttribute('data-panel-id');
         if (refPid) {
           var refPanel = visibleRef.el.parentNode.querySelector('.reference-abstract[data-for-panel="' + refPid + '"]');
           if (refPanel) {
-            refPanel.style.display = show && refPanel.classList.contains('open') ? 'block' : 'none';
+            var wantPanel = show && refPanel.classList.contains('open') ? 'block' : 'none';
+            if (refPanel.style.display !== wantPanel) refPanel.style.display = wantPanel;
           }
         }
 
@@ -731,7 +816,7 @@
       }
 
       updateCount(toolbar, visible, references.length, matched.length,
-                  limitApplied, displayLimit, relevanceReady);
+                  limitApplied, displayLimit, relevanceReady, cutoffScore);
       drawSparkline();
 
       // When expand-all mode is active, auto-expand any newly visible refs
@@ -1036,22 +1121,28 @@
       setExpandAllActive: function (v) { expandAllActive = v; },
       setRelevanceReady: function (ready) {
         relevanceReady = ready === true;
-        displayCapReady = true;
         applyFilters();
       },
       updateRelevanceMax: updateRelevanceMax
     };
   }
 
+  /** Thousands separators, so five-digit counts stay readable. */
+  function groupDigits(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
   function updateCount(toolbar, visible, total, matchedTotal, limitApplied,
-                       displayLimit, relevanceRanked) {
+                       displayLimit, relevanceRanked, cutoffScore) {
     var el = toolbar.querySelector('.ref-count');
     matchedTotal = matchedTotal == null ? total : matchedTotal;
-    var text = limitApplied
-      ? 'Showing ' + visible + ' of ' + matchedTotal + ' matching references'
-      : visible === total
-      ? total + ' reference' + (total !== 1 ? 's' : '')
-      : 'Showing ' + visible + ' of ' + total + ' references';
+    // Count against the collection, never against the matched set. While the
+    // cap is in force the matched total moves whenever the relevance filter
+    // moves, but the references on screen do not, and a number that changes
+    // beside a list that does not reads as a bug.
+    var text = (!limitApplied && visible === total)
+      ? groupDigits(total) + ' reference' + (total !== 1 ? 's' : '')
+      : 'Showing ' + groupDigits(visible) + ' of ' + groupDigits(total) + ' references';
     var textEl = el.querySelector('.ref-count-text');
     if (!textEl) {
       textEl = document.createElement('span');
@@ -1062,11 +1153,20 @@
 
     var limitNote = el.querySelector('.ref-limit-note');
     if (limitApplied) {
-      var noteText = relevanceRanked
-        ? 'Showing the ' + displayLimit + ' most relevant of ' +
-          matchedTotal + ' matching collected references. All references are retained; refine the filters to see the others.'
-        : 'Showing the first ' + displayLimit + ' of ' + matchedTotal +
-          ' matching collected references because relevance ranking was unavailable. All references are retained.';
+      var noteText;
+      if (!relevanceRanked) {
+        noteText = 'The list stops at the first ' + groupDigits(displayLimit) +
+          ' references, because relevance could not be scored for this page. ' +
+          'Narrowing by search, year or type brings others into view.';
+      } else {
+        noteText = 'The list stops at the ' + groupDigits(displayLimit) +
+          ' most relevant references' +
+          (cutoffScore != null ? ', all scoring at least ' + cutoffScore + '%' : '') +
+          '. Lowering the relevance filter' +
+          (cutoffScore != null ? ' below that' : '') +
+          ' widens the pool without changing what is shown; narrowing by ' +
+          'search, year or type brings other references into view.';
+      }
       if (!limitNote) {
         limitNote = document.createElement('span');
         limitNote.className = 'ref-limit-note';
@@ -1801,6 +1901,12 @@
    * always passed through escapeHtml() before it reaches the DOM.
    */
   function decodeEntities(text) {
+    // Both patterns below require an ampersand, so without one the loop can
+    // only ever return the input unchanged after scanning the whole string
+    // twice. Abstracts run to ~1,600 characters and 92% of them contain no
+    // entity at all, so this guard removes most of the work outright.
+    if (text.indexOf('&') === -1) return text;
+
     var named = {
       amp: '&', apos: "'", quot: '"', nbsp: '\u00A0', lt: '<', gt: '>',
       ndash: '\u2013', mdash: '\u2014', lsquo: '\u2018', rsquo: '\u2019',
@@ -1827,8 +1933,9 @@
   function cleanAbstract(text) {
     // Strip all XML/HTML tags. This runs before decoding, so that an
     // entity-encoded "<" in the prose (e.g. "P &lt; .001") cannot be read as
-    // the start of a tag and swallow the text up to the next ">".
-    var clean = text.replace(/<[^>]+>/g, '');
+    // the start of a tag and swallow the text up to the next ">". The pattern
+    // cannot match without a "<", and only 3% of collected abstracts have one.
+    var clean = text.indexOf('<') === -1 ? text : text.replace(/<[^>]+>/g, '');
     clean = decodeEntities(clean);
     // Remove leading "Abstract" (with optional colon/period/space)
     clean = clean.replace(/^\s*Abstract[:\.]?\s*/i, '');
@@ -2075,7 +2182,11 @@
     var refTexts = new Array(references.length);
     var owns = Object.prototype.hasOwnProperty;
     for (var i = 0; i < references.length; i++) {
-      refTexts[i] = references[i].el.textContent || '';
+      // The citation text captured before decoration, so a score never depends
+      // on whether the reference happens to be displaying its buttons.
+      refTexts[i] = references[i].citationText != null
+        ? references[i].citationText
+        : (references[i].el.textContent || '');
       var t = extractRefTitle(refTexts[i]);
       var abs = references[i].el.getAttribute('data-abstract') || '';
       var allWords = tokenize(t + ' ' + abs);
@@ -2109,20 +2220,13 @@
       ref.relevance = score;
       ref.el.setAttribute('data-relevance', score);
 
-      // Insert once, then update in place on a background metadata refresh.
-      var badge = ref.el.querySelector('.ref-relevance');
-      if (!badge) {
-        badge = document.createElement('span');
-        var actions = ref.el.querySelector('.reference-actions');
-        if (actions) {
-          ref.el.insertBefore(badge, actions);
-        } else {
-          ref.el.appendChild(badge);
-        }
+      // The badge element itself is created by ensureDecorated when the
+      // reference is first displayed; a reference the filters never show does
+      // not need one. Only refresh it here, for the background re-score.
+      if (ref._badge) {
+        ref._badge.className = 'ref-relevance ' + relevanceClass(score);
+        ref._badge.textContent = score + '%';
       }
-      badge.className = 'ref-relevance ' + relevanceClass(score);
-      badge.title = 'Estimated relevance to this publication';
-      badge.textContent = score + '%';
     }
     return true;
   }
