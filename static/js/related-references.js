@@ -12,9 +12,11 @@
     if (stored) crossrefCache = JSON.parse(stored);
   } catch (e) { /* ignore */ }
 
-  // Keep large collections usable without discarding citations. Once relevance
-  // has been scored, only the highest-ranked matches are rendered at a time.
-  var RELATED_REFERENCES_DISPLAY_LIMIT = 1000;
+  // References are rendered a page at a time. This replaced a hard cap of
+  // 1,000: the references past a cap are simply unreachable, and no wording
+  // made that intelligible, whereas a page with a "show more" is a model
+  // readers already have. It also renders a tenth as much.
+  var RELATED_REFERENCES_PAGE_SIZE = 100;
 
   function saveCache() {
     try { sessionStorage.setItem('refCrossRefCache', JSON.stringify(crossrefCache)); } catch (e) { /* ignore */ }
@@ -416,7 +418,7 @@
     updateCount(toolbar, references.length, references.length);
     var ctrl = setupFiltering(
       toolbar, references, hangingIndent, minYear, maxYear,
-      RELATED_REFERENCES_DISPLAY_LIMIT, ensureDecorated
+      RELATED_REFERENCES_PAGE_SIZE, ensureDecorated
     );
 
     var queryStr = scopusQueries
@@ -470,22 +472,31 @@
       }
     } catch (e) { console.warn('[related-refs] restore error:', e); }
 
-    // Background-fetch metadata for DOIs missing embedded data (types + abstracts).
-    // Re-score the full collection after the background batch completes so
-    // the display cap uses one consistent corpus-wide relevance calculation.
-    backgroundPrefetch(section, references, function () {
-      try {
-        if (addRelevanceBadges(references, queryStr)) {
-          ctrl.setRelevanceReady(true);
-          ctrl.updateRelevanceMax();
-          ctrl.applySort();
+    // Background-fetch metadata for DOIs missing embedded data (types +
+    // abstracts), then re-score once the batch is settled so the display cap
+    // uses one consistent corpus-wide calculation.
+    //
+    // Deliberately started only after relevance has been scored, so it can be
+    // limited to the references actually on screen. Queued over the whole
+    // collection it was unbounded: 2,065 of the thesis page's references still
+    // lack a type, so every visitor's browser opened 2,065 CrossRef requests,
+    // two at a time, for data that affects 130 references they can see. The
+    // collector backfills the rest server-side.
+    function startPrefetch() {
+      backgroundPrefetch(section, references, function () {
+        try {
+          if (addRelevanceBadges(references, queryStr)) {
+            ctrl.setRelevanceReady(true);
+            ctrl.updateRelevanceMax();
+            ctrl.applySort();
+          }
+        } catch (refreshErr) {
+          if (typeof console !== 'undefined' && console.error) {
+            console.error('[related-refs] relevance refresh error:', refreshErr);
+          }
         }
-      } catch (refreshErr) {
-        if (typeof console !== 'undefined' && console.error) {
-          console.error('[related-refs] relevance refresh error:', refreshErr);
-        }
-      }
-    });
+      });
+    }
 
     // Defer only the expensive NLP relevance scoring behind a single event-loop
     // tick so the browser can paint the buttons and toolbar first.
@@ -516,6 +527,9 @@
           console.error('[related-refs] relevance scoring error:', badgeErr);
         }
       }
+      // Either way the displayed set is now final, so the prefetch can be
+      // scoped to it.
+      startPrefetch();
     }, 0);
   }
 
@@ -690,7 +704,7 @@
   // =========================================================================
 
   function setupFiltering(toolbar, references, hangingIndent, defaultMinYear,
-                          defaultMaxYear, displayLimit, ensureDecorated) {
+                          defaultMaxYear, pageSizeArg, ensureDecorated) {
     var searchInput = toolbar.querySelector('.ref-search');
     var clearBtn = toolbar.querySelector('.ref-search-clear');
     var yearMinInput = toolbar.querySelector('.ref-year-min');
@@ -706,7 +720,27 @@
     var relevanceValueLabel = toolbar.querySelector('.ref-relevance-value');
     var currentSort = 'relevance';
     var relevanceReady = false;
-    displayLimit = Math.max(0, parseInt(displayLimit, 10) || 0);
+    var pageSize = Math.max(1, parseInt(pageSizeArg, 10) || 100);
+    var renderedCount = pageSize;
+    var lastSignature = null;
+    // References in the order the list is currently sorted. The page is taken
+    // off the front of this, so "the first hundred" means the first hundred the
+    // reader would actually scroll past.
+    var orderedRefs = references.slice();
+
+    // "Show more", placed after the list where a reader reaches for it.
+    var moreBtn = document.createElement('button');
+    moreBtn.type = 'button';
+    moreBtn.className = 'ref-show-more';
+    moreBtn.style.display = 'none';
+    moreBtn.addEventListener('click', function () {
+      renderedCount += pageSize;
+      applyFilters();
+      moreBtn.focus();
+    });
+    if (hangingIndent.parentNode) {
+      hangingIndent.parentNode.insertBefore(moreBtn, hangingIndent.nextSibling);
+    }
 
     function compareRelevance(a, b) {
       var scoreDifference = (b.relevance || 0) - (a.relevance || 0);
@@ -724,14 +758,11 @@
       var yearMax = parseInt(yearMaxInput.value, 10);
       var typeVal = typeSelect.value;
       var relMin = parseInt(relevanceMinInput.value, 10) || 0;
-      // The slider rests at its floor, which is not always zero, so compare
-      // against the floor rather than against zero.
-      var relFloor = parseInt(relevanceMinInput.min, 10) || 0;
       return query !== '' ||
         yearMin !== defaultMinYear ||
         yearMax !== defaultMaxYear ||
         typeVal !== '' ||
-        relMin > relFloor;
+        relMin > 0;
     }
 
     function applyFilters() {
@@ -745,8 +776,8 @@
 
       clearBtn.style.display = query ? '' : 'none';
 
-      for (var i = 0; i < references.length; i++) {
-        var ref = references[i];
+      for (var i = 0; i < orderedRefs.length; i++) {
+        var ref = orderedRefs[i];
         var matchesFilters = true;
 
         // Refresh searchText to include any abstract fetched after init. The
@@ -769,37 +800,10 @@
 
         ref._matchesBase = matchesFilters;
         ref._matchesFilters = false;
-        ref._withinDisplayLimit = false;
+        ref._onPage = false;
         if (matchesFilters) baseMatched.push(ref);
       }
 
-      // The slider's floor. While more references pass the other filters than
-      // the list can show, every position below the score of the last one that
-      // would make the cut selects exactly the same references, so a stretch of
-      // the track did nothing at all. Moving the slider's own minimum up to
-      // that score removes the dead stretch.
-      //
-      // It is derived from the search, year and type filters only, never from
-      // the relevance value itself. Deriving it from the relevance value too
-      // would make the floor chase the thumb: the track would rescale as soon
-      // as the value moved off it, and the thumb would jump under the cursor.
-      // Tying it to the other filters keeps the track still while the slider is
-      // used, and restores the full range as soon as one of them narrows the
-      // set enough for the whole of it to fit.
-      var relevanceFloor = 0;
-      if (relevanceReady && displayLimit > 0 && baseMatched.length > displayLimit) {
-        var byScore = baseMatched.slice().sort(compareRelevance);
-        relevanceFloor = byScore[displayLimit - 1].relevance || 0;
-      }
-      if (String(relevanceFloor) !== relevanceMinInput.min) {
-        relevanceMinInput.min = relevanceFloor;
-      }
-      // Changing min re-sanitises the value, so read it back rather than
-      // trusting the one captured before the floor was known.
-      relMin = parseInt(relevanceMinInput.value, 10) || 0;
-      relevanceValueLabel.textContent = relevanceMinInput.value + '%';
-      // Evaluated here rather than at the top, so "no filters set" is judged
-      // against the floor the slider has just been given.
       resetBtn.style.visibility = isFilterActive() ? 'visible' : 'hidden';
 
       for (var bi = 0; bi < baseMatched.length; bi++) {
@@ -809,36 +813,26 @@
         matched.push(baseRef);
       }
 
-      // Cap from the very first pass. Rendering all 7,259 references for the
-      // few seconds until relevance is scored, only to hide 6,259 of them, cost
-      // far more than it was worth; until scores exist the top matches are
-      // taken in source order, which the count tooltip says explicitly. The
-      // selection is made independently of the presentation sort so that
-      // alphabetic and year views show the same references.
-      var limitApplied = displayLimit > 0 && matched.length > displayLimit;
-      var cutoffScore = null;
-      if (limitApplied) {
-        var ranked = matched.slice().sort(
-          relevanceReady ? compareRelevance : compareSourceOrder
-        );
-        for (var ri = 0; ri < displayLimit; ri++) {
-          ranked[ri]._withinDisplayLimit = true;
-        }
-        // The score of the last reference that made the cut. Anything the
-        // relevance filter admits below this is matched but not shown, which
-        // is what the count tooltip has to explain.
-        if (relevanceReady) cutoffScore = ranked[displayLimit - 1].relevance || 0;
-      } else {
-        cutoffScore = null;
-        for (var mi = 0; mi < matched.length; mi++) {
-          matched[mi]._withinDisplayLimit = true;
-        }
+      // Start again at the first page whenever the selection itself changes,
+      // but not when the list is merely re-applied (after scoring, say), which
+      // would throw away pages the reader had already asked for.
+      var signature = [query, yearMin, yearMax, typeVal, relMin, currentSort].join('');
+      if (signature !== lastSignature) {
+        lastSignature = signature;
+        renderedCount = pageSize;
+      }
+
+      // matched is in the order the list is sorted, because the loop above
+      // walks orderedRefs, so the page boundary follows what the reader sees.
+      var pageEnd = Math.min(renderedCount, matched.length);
+      for (var pi = 0; pi < pageEnd; pi++) {
+        matched[pi]._onPage = true;
       }
 
       var visible = 0;
       for (var vi = 0; vi < references.length; vi++) {
         var visibleRef = references[vi];
-        var show = visibleRef._matchesFilters && visibleRef._withinDisplayLimit;
+        var show = visibleRef._matchesFilters && visibleRef._onPage;
         if (show) ensureDecorated(visibleRef);
         // Writing an inline style invalidates style and layout for that element
         // even when the value is unchanged. Filters are re-applied several
@@ -862,8 +856,17 @@
         if (show) visible++;
       }
 
-      updateCount(toolbar, visible, references.length, matched.length,
-                  limitApplied, displayLimit, relevanceReady, cutoffScore);
+      updateCount(toolbar, visible, matched.length);
+
+      var remaining = matched.length - visible;
+      if (remaining > 0) {
+        moreBtn.textContent = 'Show ' + groupDigits(Math.min(pageSize, remaining)) +
+          ' more of ' + groupDigits(remaining) + ' remaining';
+        moreBtn.style.display = '';
+      } else if (moreBtn.style.display !== 'none') {
+        moreBtn.style.display = 'none';
+      }
+
       drawSparkline();
 
       // When expand-all mode is active, auto-expand any newly visible refs
@@ -923,6 +926,9 @@
         if (panels[j]) frag.appendChild(panels[j]);
       }
       hangingIndent.appendChild(frag);
+      // The page is taken off the front of this order, so re-page after sorting.
+      orderedRefs = sorted;
+      applyFilters();
     }
 
     var searchTimer;
@@ -1057,7 +1063,7 @@
       exportDoisBtn.addEventListener('click', function () {
         var lines = [];
         for (var i = 0; i < references.length; i++) {
-          if (references[i].el.style.display !== 'none' && references[i].doi) {
+          if (references[i]._matchesFilters && references[i].doi) {
             lines.push('https://doi.org/' + references[i].doi);
           }
         }
@@ -1188,17 +1194,15 @@
     return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
-  function updateCount(toolbar, visible, total, matchedTotal, limitApplied,
-                       displayLimit, relevanceRanked, cutoffScore) {
+  function updateCount(toolbar, visible, matchedTotal) {
     var el = toolbar.querySelector('.ref-count');
-    matchedTotal = matchedTotal == null ? total : matchedTotal;
-    // Count against the collection, never against the matched set. While the
-    // cap is in force the matched total moves whenever the relevance filter
-    // moves, but the references on screen do not, and a number that changes
-    // beside a list that does not reads as a bug.
-    var text = (!limitApplied && visible === total)
-      ? groupDigits(total) + ' reference' + (total !== 1 ? 's' : '')
-      : 'Showing ' + groupDigits(visible) + ' of ' + groupDigits(total) + ' references';
+    matchedTotal = matchedTotal == null ? visible : matchedTotal;
+    // Always counted against what the filters selected. Every reference in that
+    // total is reachable by scrolling and pressing "show more", so the number
+    // and the list can no longer disagree.
+    var text = visible >= matchedTotal
+      ? groupDigits(matchedTotal) + ' reference' + (matchedTotal !== 1 ? 's' : '')
+      : 'Showing ' + groupDigits(visible) + ' of ' + groupDigits(matchedTotal) + ' references';
     var textEl = el.querySelector('.ref-count-text');
     if (!textEl) {
       textEl = document.createElement('span');
@@ -1207,34 +1211,10 @@
     }
     textEl.textContent = text;
 
-    var limitNote = el.querySelector('.ref-limit-note');
-    if (limitApplied) {
-      var noteText;
-      if (!relevanceRanked) {
-        noteText = 'The list stops at the first ' + groupDigits(displayLimit) +
-          ' references, because relevance could not be scored for this page. ' +
-          'Narrowing by search, year or type brings others into view.';
-      } else {
-        noteText = 'The list stops at the ' + groupDigits(displayLimit) +
-          ' most relevant references' +
-          (cutoffScore != null ? ', all scoring at least ' + cutoffScore + '%' : '') +
-          '. That is where the relevance slider starts, since anything lower ' +
-          'would select the same ' + groupDigits(displayLimit) + '. Narrowing ' +
-          'by search, year or type brings other references into view, and ' +
-          'returns the slider to its full range.';
-      }
-      if (!limitNote) {
-        limitNote = document.createElement('span');
-        limitNote.className = 'ref-limit-note';
-        limitNote.setAttribute('role', 'img');
-        limitNote.innerHTML = '<i class="fas fa-circle-info" aria-hidden="true"></i>';
-        el.appendChild(limitNote);
-      }
-      limitNote.setAttribute('aria-label', noteText);
-      limitNote.setAttribute('title', noteText);
-    } else if (limitNote) {
-      limitNote.parentNode.removeChild(limitNote);
-    }
+    // No note. The cap it used to explain is gone, and nothing about a page
+    // with a "show more" beneath it needs explaining.
+    var staleNote = el.querySelector('.ref-limit-note');
+    if (staleNote) staleNote.parentNode.removeChild(staleNote);
   }
 
   // =========================================================================
@@ -1491,6 +1471,10 @@
     for (var i = 0; i < references.length; i++) {
       var ref = references[i];
       if (!ref.doi) continue;
+      // Only what the reader can currently see. A reference the filters hide
+      // gains nothing from having its type or abstract fetched, and the
+      // collection runs to thousands of them.
+      if (ref.el.style.display === 'none') continue;
       // A pruned abstract is a deliberate omission, not a gap: bulk-fetching
       // those would put thousands of CrossRef requests behind every page load.
       var needsAbstract = !ref.el.getAttribute('data-abstract') &&
@@ -1866,9 +1850,12 @@
 
   /** Export all currently visible references. */
   function exportVisible(references, format) {
+    // Everything the filters selected, not just the page on screen. Exporting
+    // 100 of 153 matches because the reader had not pressed "show more" would
+    // be a silent, wrong answer.
     var visible = [];
     for (var i = 0; i < references.length; i++) {
-      if (references[i].el.style.display !== 'none') visible.push(references[i]);
+      if (references[i]._matchesFilters) visible.push(references[i]);
     }
     if (!visible.length) return;
 
