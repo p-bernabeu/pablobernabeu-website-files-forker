@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Drop stored abstracts from related references that are never displayed.
+"""Drop stored abstracts from the related references least likely to be read.
 
-Abstracts are roughly four fifths of the weight of a Related References page,
-and the reader shows at most RELATED_REFERENCES_DISPLAY_LIMIT (1,000) of them
-ranked by relevance. Everything below that rank still ships its abstract to
-every visitor.
+Abstracts are roughly four fifths of the weight of a Related References page.
+Everything below the top of the ranking still ships its abstract to every
+visitor, and on the largest pages that is several megabytes nobody reads.
 
 Pruning is only safe against the ranking the reader itself computes. Cheaper
 proxies were measured and rejected: keeping the top 2,000 by title similarity
@@ -13,12 +12,27 @@ abstract to 300 characters displaces 206. So this script reproduces the
 reader's scoring from static/js/related-references.js, ranks by it, and keeps
 the abstracts of the top KEEP references.
 
-KEEP is deliberately 2.5x the display limit. Removing an abstract shrinks the
-corpus vocabulary, which moves the rare-word threshold for every reference, so
-the reader re-scores a pruned page slightly differently. Measured on the thesis
-page, keeping 2,500 displaces none of the reader's top 1,000; keeping 2,000
-displaces 8. The margin absorbs that and any small drift between this
-implementation and the reader's.
+KEEP used to be justified as 2.5x a hard display cap of 1,000 references. That
+cap is gone: the reader now renders RELATED_REFERENCES_PAGE_SIZE (100) at a
+time behind a "show more", so every reference is reachable and no rank is
+beyond the reader by construction. What replaces the cap as a justification is
+how far anyone actually pages. KEEP = 2,500 is twenty-five pages deep, well
+past any plausible session, and it keeps the margin the original figure was
+chosen for: removing an abstract shrinks the corpus vocabulary, which moves the
+rare-word threshold for every reference, so a pruned page re-scores slightly
+differently in the reader.
+
+Two consequences worth stating plainly rather than burying:
+
+- A pruned reference is re-scored title-only by the reader, because
+  computeRelevance weights an abstract when it has one. That is 60% of the
+  thesis page and 53% of man-as-default. Pruning therefore changes the ranking
+  it is derived from.
+- Because prune_publication() scores from the current, already-pruned
+  metadata, a pruned reference cannot climb back into the keep set, and a
+  second pass over an unchanged page still finds more to prune. Ranking against
+  "has an abstract or once had one" would make this idempotent; it does not do
+  that yet.
 
 Pruned entries keep their type and are marked "abstractPruned": true. The
 reader treats that as "an abstract exists upstream, do not bulk-fetch it, but
@@ -45,7 +59,6 @@ except ImportError:  # pragma: no cover
     sys.exit("PyYAML is required: pip install pyyaml")
 
 KEEP = 2500
-DISPLAY_LIMIT = 1000
 
 # --------------------------------------------------------------------------
 # Mirrors of the reader's text handling. Any divergence here shifts scores, so
@@ -288,15 +301,32 @@ def load_page(refs_path):
                  else parsed.get('query', '')) or ''
     body = re.sub(r'<script.*?</script>', '', source, flags=re.S)
     references = []
-    for paragraph in re.findall(r'<p[ >].*?</p>', body, re.S):
+    # One citation is one <p> on one line, which is what the collector writes.
+    # Matching with re.DOTALL instead let an unclosed <p> -- the signature of a
+    # citation that was truncated before it was written -- run on to the next
+    # paragraph's </p>. That fused two references into a single scoring unit
+    # and read the DOI off the second one, so the ranking this script prunes by
+    # was computed from text belonging to a different reference.
+    matched = 0
+    for paragraph in re.findall(r'<p[ >][^\n]*?</p>', body):
+        matched += 1
         text = paragraph_text(paragraph)
         if not text.strip():
             continue
         doi_match = re.search(r'doi\.org/([^"<\s]+)', paragraph)
         references.append({'doi': doi_match.group(1) if doi_match else None,
                            'text': text})
+    # Report rather than repair: a page with unclosed paragraphs needs
+    # scripts/repair_truncated_citations.R, and pruning it in the meantime
+    # would rank against text this function cannot read.
+    unclosed = len(re.findall(r'<p[ >]', body)) - matched
+    if unclosed > 0:
+        print('  WARNING: %d unclosed <p> in %s -- skipped. Run '
+              'scripts/repair_truncated_citations.R first.'
+              % (unclosed, refs_path))
     return {'source': source, 'metadata': metadata, 'query': query,
-            'references': references, 'meta_match': meta_match}
+            'references': references, 'meta_match': meta_match,
+            'unclosed': unclosed}
 
 
 def metadata_entry(metadata, doi):
@@ -311,6 +341,13 @@ def prune_publication(publication_dir, apply_changes):
         return None
     page = load_page(refs_path)
     if page is None:
+        return None
+    # Pruning decides what to drop from a ranking over every reference on the
+    # page. If some could not be read, the ranking is computed from a subset
+    # and the wrong abstracts get dropped, so leave the page alone entirely.
+    if page.get('unclosed'):
+        print('  SKIPPED %s: repair the truncated citations first.'
+              % os.path.basename(os.path.normpath(publication_dir)))
         return None
 
     core = core_context(read_front_matter(publication_dir))
