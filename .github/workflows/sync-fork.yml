@@ -12,7 +12,7 @@ jobs:
     
     steps:
       - name: Checkout source repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository:  pablobernabeu/website-files
           token: ${{ secrets.PRIVATE_REPO_PAT }}
@@ -20,7 +20,7 @@ jobs:
           path: source-repo
           
       - name:  Checkout destination repository
-        uses:  actions/checkout@v4
+        uses:  actions/checkout@v7
         with:
           repository: p-bernabeu/pablobernabeu-website-files-forker
           token: ${{ secrets.PRIVATE_REPO_PAT }}
