@@ -51,7 +51,7 @@ Research has extensively investigated whether conceptual processing is modality-
 
 - [Early discussion on ResearchGate](https://www.researchgate.net/post/Conceptual_modality_switch_effect_measured_at_first_word)
 - [Data and code](https://osf.io/97unm/)
-- [Data dashboard](/applications-and-dashboards/bernabeu-etal-2017-modalityswitch/)
+- [Data dashboard](/software/bernabeu-etal-2017-modalityswitch/)
 
 
 In the Conceptual Modality Switch (CMS) paradigm, participants perform a property verification task, deciding whether certain property words can reasonably describe concept words. Covertly, the conceptual modality of consecutive trials is manipulated in order to produce specific switches in conceptual modality. For instance, after the trial *Soundless Answer*, which is primarily auditory, the following trial may match in modality—*Loud Welcome*—or mismatch—*Fine Selection* (visual).
@@ -96,7 +96,7 @@ Although the interaction of Group and CMS was only significant in Time Windows 1
 
 The statistical analysis is [available on OSF](https://osf.io/sx3nw) (to view the plots, please [download the document](https://osf.io/download/sx3nw)).
 
-<iframe src="https://mfr.osf.io/render?url=https%3A%2F%2Fosf.io%2Fdownload%2Fsx3nw%2F%3Fdirect%26mode%3Drender"
+<iframe title="Document: Modality switch effects emerge early and increase throughout conceptual processing: Evidence from ERPs" src="https://mfr.osf.io/render?url=https%3A%2F%2Fosf.io%2Fdownload%2Fsx3nw%2F%3Fdirect%26mode%3Drender"
         width="100%"
         scrolling="yes"
         height="677px"
