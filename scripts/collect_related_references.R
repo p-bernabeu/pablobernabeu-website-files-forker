@@ -1,22 +1,31 @@
 # collect_related_references.R
 #
-# Fully automated weekly collection of related references for publications.
-# - Auto-discovers every publication under content/publication/
-# - For publications with an existing related references R script, extracts
-#   the query from that script
-# - For publications without one, auto-generates a Scopus query from the
-#   publication title and DOI
+# Automated collection of related references, run twice daily by
+# .github/workflows/collect-related-references.yml.
+# - Discovers every publication under content/publication/, and every software
+#   page under content/software/ that already has a related-references.html or
+#   a related references folder (see list_bundle_dirs)
+# - For bundles with an existing related references R script, extracts the
+#   query from that script
+# - For bundles without one, auto-generates a Scopus query from the page's
+#   title and DOI
 # - Searches Scopus via a commit-pinned scopus_search_plus helper
 # - Retrieves APA 7 formatted citations via CrossRef content negotiation
-# - Inserts new citations into each publication's index file, sorted
-#   alphabetically and deduplicated
+# - Appends citations not already listed to each bundle's
+#   related-references.html
+# - Records the query in that file for the page's query viewer, and rewrites
+#   the record when the query changes
 # - Persists unfetched DOI candidates so time-limited runs resume collection
 #   before moving on to newly discovered results
 #
 # Usage:
-#   Rscript scripts/collect_related_references.R              # all publications
-#   Rscript scripts/collect_related_references.R --pub NAME   # single publication
-#   Rscript scripts/collect_related_references.R --lint-only  # repair files only
+#   Rscript scripts/collect_related_references.R                 # all bundles
+#   Rscript scripts/collect_related_references.R --pub NAME      # one bundle, by folder name
+#   Rscript scripts/collect_related_references.R --pub software/NAME   # one bundle, section given
+#   Rscript scripts/collect_related_references.R --lint-only     # repair files only
+#
+# --pub must be followed by a bundle name. Without one, the script stops,
+# since carrying on would collect for every bundle.
 #
 # Environment variables:
 #   SCOPUS_API_KEY  — Elsevier Scopus API key (required)
@@ -126,6 +135,57 @@ find_refs_dir <- function(pub_dir) {
   if (length(found) > 0) return(found[1])
   # Default: create with space (consistent with majority)
   file.path(pub_dir, "related references")
+}
+
+#' Whether a bundle already carries related references of its own: the
+#' standalone HTML, or a folder under either spelling find_refs_dir() accepts.
+#' find_refs_dir() returns a path even when nothing exists there, hence the
+#' dir.exists() test.
+has_related_references <- function(bundle_dir) {
+  file.exists(find_refs_html_file(bundle_dir)) ||
+    dir.exists(find_refs_dir(bundle_dir))
+}
+
+#' Section folders whose page bundles can carry related references, with
+#' publications first so that they keep the processing order they had when
+#' they were the only section. This is a function, not a constant, because
+#' scripts/repair_truncated_citations.R imports this file's function
+#' definitions and nothing else.
+bundle_roots <- function() {
+  c(publication = "content/publication", software = "content/software")
+}
+
+#' List the bundle folders to collect for, publications first.
+#' Every publication is included, since a query can be generated from its title
+#' and DOI. A software page is included only once it has related references of
+#' its own, so that adding a package or app page does not start an unrequested
+#' collection for it. The discover job in collect-related-references.yml
+#' applies the same rule and must be kept in step with this one.
+list_bundle_dirs <- function() {
+  roots <- bundle_roots()
+  # Outside the repository root, list.dirs() would find nothing and the run
+  # would end with "No changes to commit" as if it had succeeded.
+  missing <- roots[!dir.exists(roots)]
+  if (length(missing) > 0) {
+    stop("Section folder not found: ", paste(missing, collapse = ", "),
+         ". Run this from the repository root.")
+  }
+  bundles_in <- function(root) {
+    dirs <- list.dirs(root, recursive = FALSE, full.names = TRUE)
+    # Exclude hidden or underscore-prefixed entries
+    dirs[!grepl("^[_.]", basename(dirs))]
+  }
+  software <- bundles_in(roots[["software"]])
+  c(bundles_in(roots[["publication"]]),
+    software[vapply(software, has_related_references, logical(1))])
+}
+
+#' List every related-references.html the lint pass maintains. A file of that
+#' name is itself what marks a software page as carrying related references,
+#' so the software section needs no filter here that publications lack.
+list_refs_html_files <- function() {
+  list.files(bundle_roots(), pattern = "related-references\\.html$",
+             recursive = TRUE, full.names = TRUE)
 }
 
 #' Try to extract the Scopus query string from an existing related references
@@ -527,8 +587,13 @@ format_citation_for_hugo <- function(citation, doi) {
 }
 
 # ===========================================================================
-#  INDEX FILE READ / WRITE
+#  RELATED-REFERENCES.HTML AND DOI BACKLOG READ / WRITE
 # ===========================================================================
+#
+# Several functions below take the file as `index_path`. Citations and their
+# JSON blocks were written into each page's index file until they moved to a
+# standalone related-references.html in April 2026, and the parameter kept its
+# old name. It now always points to related-references.html.
 
 #' Convert a markdown-formatted citation to HTML for insertion into .html files.
 #' Handles *italic* -> <em>, <URL> -> <a>, and & -> &amp;.
@@ -543,8 +608,12 @@ citation_md_to_html <- function(citation) {
   html
 }
 
-#' Extract DOIs already present in a publication's index file.
+#' Extract the DOIs already listed in a bundle's related-references.html, plus
+#' any DOIs skipped by hand in the bundle's skip.csv.
 #' Handles both markdown angle-bracket format and HTML <a> tag format.
+#' @param index_path Path to the bundle's related-references.html. A missing
+#'   file yields no DOIs.
+#' @return Lower-cased, trimmed, unique DOIs.
 extract_existing_dois <- function(index_path) {
   if (!file.exists(index_path)) return(character(0))
   content <- readLines(index_path, encoding = "UTF-8", warn = FALSE)
@@ -558,7 +627,9 @@ extract_existing_dois <- function(index_path) {
   dois <- gsub('^href="https?://doi\\.org/', "", dois)
   dois <- gsub('"$', "", dois)
 
-  # Also load any manually skipped DOIs from skip.csv in the same refs dir
+  # Also load any manually skipped DOIs from skip.csv in the related references
+  # folder beside the file, under either spelling. Despite its name, refs_dir
+  # here is the bundle folder.
   refs_dir <- dirname(index_path)
   refs_dirs <- c(
     file.path(refs_dir, "related references"),
@@ -716,11 +787,14 @@ insert_references_into_refs_html <- function(refs_html_path, new_citations) {
 }
 
 # ===========================================================================
-#  METADATA JSON BLOCK (embedded in index file for JS to read)
+#  METADATA JSON BLOCK (embedded in related-references.html for JS to read)
 # ===========================================================================
 
-#' Read existing ref-metadata JSON from the index file's <script> block.
-#' Returns a named list (DOI -> list(abstract, type)).
+#' Read existing ref-metadata JSON from the <script> block in a bundle's
+#' related-references.html.
+#' @param index_path Path to the bundle's related-references.html.
+#' @return A named list (DOI -> list(abstract, type, ...)), empty when the
+#'   block is absent or unreadable.
 read_ref_metadata <- function(index_path) {
   content <- readLines(index_path, encoding = "UTF-8", warn = FALSE)
   start <- grep('<script[^>]*class="ref-metadata"', content)
@@ -738,9 +812,10 @@ read_ref_metadata <- function(index_path) {
   )
 }
 
-#' Insert or update the <script class="ref-metadata"> JSON block in the index
-#' file. The block goes inside the <div class="related-references"> div but
-#' *after* the citations, immediately before the section's closing tag.
+#' Insert or update the <script class="ref-metadata"> JSON block in a bundle's
+#' related-references.html. The block goes inside the
+#' <div class="related-references"> div but *after* the citations, immediately
+#' before the section's closing tag.
 #'
 #' Position matters for how the page loads. The block reaches 7.9 MB on the
 #' largest publication, some 78% of that page, and while it sat at the top of
@@ -750,6 +825,11 @@ read_ref_metadata <- function(index_path) {
 #' and over a real connection the gap is however long it takes to fetch 2.6 MB
 #' of gzipped JSON rather than milliseconds. The reader's JavaScript finds the
 #' block by class, so moving it costs nothing.
+#' @param index_path Path to the bundle's related-references.html, rewritten in
+#'   place.
+#' @param metadata Named list (DOI -> entry) to store. An empty list writes
+#'   nothing.
+#' @return TRUE when the file was written, FALSE otherwise.
 write_ref_metadata <- function(index_path, metadata) {
   if (length(metadata) == 0) return(FALSE)
 
@@ -803,8 +883,59 @@ write_ref_metadata <- function(index_path, metadata) {
 #  SCOPUS QUERY JSON BLOCK (embedded for JS viewer)
 # ===========================================================================
 
-#' Insert or update the <script class="scopus-queries"> JSON block in the
-#' index file, inside the <div class="related-references"> section.
+#' Decide whether the <script class="scopus-queries"> block in a bundle's
+#' related-references.html needs writing for the query this run searched with.
+#'
+#' Only the query is compared. An auto-generated query's period ends in the
+#' current year, so comparing periods would rewrite every such block each
+#' January and reset its collection date although the query had not changed.
+#' @param index_path Path to the bundle's related-references.html.
+#' @param query The Scopus query string used on this run.
+#' @return "absent" when the file has no block, "current" when the stored query
+#'   matches `query`, "changed" when a readable block holds a different query or
+#'   none, and "unreadable" when a block is there but cannot be parsed.
+scopus_queries_status <- function(index_path, query) {
+  content <- readLines(index_path, encoding = "UTF-8", warn = FALSE)
+  start <- grep('<script[^>]*class="scopus-queries"', content)
+  if (length(start) == 0) return("absent")
+  end <- grep("</script>", content)
+  end <- end[end > start[1]]
+  # write_scopus_queries() removes an old block up to the first closing tag
+  # after its opening one. If this block were collapsed onto a single line,
+  # that tag would belong to the ref-metadata block at the foot of the file,
+  # and every citation in between would go with it. Rewriting is therefore
+  # allowed only when what lies between the tags parses as JSON.
+  if (length(end) == 0 || end[1] - start[1] < 2) return("unreadable")
+  stored <- tryCatch(
+    jsonlite::fromJSON(paste(content[(start[1] + 1):(end[1] - 1)], collapse = "\n"),
+                       simplifyVector = FALSE),
+    error = function(e) NULL
+  )
+  if (!is.list(stored)) return("unreadable")
+  # Exact [[ ]] indexing, since $ partial-matches names.
+  stored_query <- stored[["query"]]
+  if (is.character(stored_query) && length(stored_query) == 1L &&
+      identical(enc2utf8(stored_query), enc2utf8(query))) {
+    "current"
+  } else {
+    "changed"
+  }
+}
+
+#' Insert or update the <script class="scopus-queries"> JSON block in a bundle's
+#' related-references.html, just inside the <div class="related-references">
+#' section.
+#' @param index_path Path to the bundle's related-references.html, rewritten in
+#'   place.
+#' @param query The Scopus query string.
+#' @param query_source "script" when the query came from the bundle's related
+#'   references R script, "auto" when it was built from the page's front matter.
+#' @param search_period A "YYYY-YYYY" string or a vector of years.
+#' @param script_path Repository path the viewer links to as the collection
+#'   script, or NULL to omit the link.
+#' @param date_collected Date recorded as the collection date.
+#' @return TRUE when the file was written, FALSE when it has no
+#'   related-references section.
 write_scopus_queries <- function(index_path, query, query_source,
                                  search_period, script_path = NULL,
                                  date_collected = Sys.Date()) {
@@ -872,8 +1003,11 @@ write_scopus_queries <- function(index_path, query, query_source,
 current_year <- as.integer(format(Sys.Date(), "%Y"))
 any_changes <- FALSE
 
-# Global time budget: stop adding new work after 30 minutes
-# so the remaining time is available for git operations.
+# Global time budget, counted from the start of this script. The ten minutes
+# it leaves inside the collect job's 355-minute timeout must also cover the
+# setup steps that run first and the lint pass after the loop. A job cancelled
+# at the timeout skips the change check and artifact upload that follow this
+# script, and so persists nothing.
 run_start_time <- proc.time()[["elapsed"]]
 TIME_BUDGET_SECS <- 345 * 60  # 345 minutes (job timeout is 355 min)
 
@@ -891,33 +1025,54 @@ time_remaining <- function() {
 # the cap rarely binds again.
 BACKFILL_CAP <- 400L
 
-# ---- CLI argument: optional --pub NAME to process a single publication ----
+# ---- CLI argument: optional --pub NAME to process a single bundle ----
 args <- commandArgs(trailingOnly = TRUE)
 single_pub <- NULL
 if ("--pub" %in% args) {
   idx <- which(args == "--pub")
-  if (idx < length(args)) {
-    single_pub <- args[idx + 1]
-    cat("Single-publication mode:", single_pub, "\n")
+  if (length(idx) > 1) {
+    stop("--pub was given more than once. Pass a single bundle name.")
   }
+  pub_arg <- if (idx < length(args)) args[idx + 1] else NA_character_
+  # A missing name used to leave single_pub NULL, and the script then collected
+  # for every bundle. An empty string or a following flag (--pub --lint-only)
+  # counts as a missing name too.
+  if (is.na(pub_arg) || !nzchar(trimws(pub_arg)) || startsWith(pub_arg, "--")) {
+    stop("--pub needs a bundle name, as in --pub NAME or --pub software/NAME.")
+  }
+  single_pub <- pub_arg
+  cat("Single-bundle mode:", single_pub, "\n")
 }
 
-pub_root <- "content/publication"
-pub_dirs <- list.dirs(pub_root, recursive = FALSE, full.names = TRUE)
-# Exclude hidden or underscore-prefixed entries
-pub_dirs <- pub_dirs[!grepl("^[_.]", basename(pub_dirs))]
+pub_dirs <- list_bundle_dirs()
 
-# Filter to a single publication if requested
+# Filter to a single bundle if requested. A bare folder name is looked up in
+# both sections, and SECTION/NAME selects one of them. The workflow always
+# passes the qualified form: a package can have a publication and a software
+# page under the same folder name, and once both carry related references a
+# bare name would stop both of their scheduled jobs.
 if (!is.null(single_pub)) {
-  pub_dirs <- pub_dirs[basename(pub_dirs) == single_pub]
+  bundle_ids <- file.path(basename(dirname(pub_dirs)), basename(pub_dirs))
+  matched <- if (grepl("/", single_pub, fixed = TRUE)) {
+    bundle_ids == single_pub
+  } else {
+    basename(pub_dirs) == single_pub
+  }
+  pub_dirs <- pub_dirs[matched]
   if (length(pub_dirs) == 0) {
-    stop("Publication not found: ", single_pub)
+    stop("Bundle not found: ", single_pub, ". A software page is collected ",
+         "only once it has a related-references.html or a related references folder.")
+  }
+  if (length(pub_dirs) > 1) {
+    stop("Bundle name is ambiguous: ", single_pub, " exists as ",
+         paste(bundle_ids[matched], collapse = " and "),
+         ". Pass one of those instead.")
   }
 }
 
 if (lint_only) pub_dirs <- character(0)
 
-cat("Processing", length(pub_dirs), "publication folder(s)\n")
+cat("Processing", length(pub_dirs), "bundle folder(s)\n")
 
 for (pub_dir in pub_dirs) {
 
@@ -1171,6 +1326,16 @@ for (pub_dir in pub_dirs) {
     cat("  Pending DOI backlog now:", length(remaining_dois), "DOIs\n")
   }
 
+  # A bundle collected for the first time, such as a software page that so far
+  # has only its related references folder, gets related-references.html from
+  # the first citations inserted above. Until then there is nothing to backfill
+  # or embed a query in, and the reads below would stop the run on the missing
+  # file.
+  if (!file.exists(refs_html_path)) {
+    cat("  No related-references.html yet: skipping metadata and query embedding\n")
+    next
+  }
+
   # ---- Backfill metadata for existing DOIs without metadata ----
   # Bounded, resumable backfill. Broad-topic publications can have thousands of
   # related references — far more than can be processed in one job — so each run
@@ -1268,15 +1433,20 @@ for (pub_dir in pub_dirs) {
     cat("  Updated metadata for", length(new_metadata), "DOIs\n")
   }
 
-  # Embed Scopus query info for the JS viewer.
+  # Embed Scopus query info for the JS viewer, and rewrite it when the query
+  # has changed. The block used to be written only when absent, so once a
+  # script had been edited, the viewer went on showing the query as it was
+  # first embedded. One page displayed 2 titles while its script searched 19.
   sp <- "scripts/collect_related_references.R"
-  # Only write if not already present
-  refs_html_content <- readLines(refs_html_path, encoding = "UTF-8", warn = FALSE)
-  if (!any(grepl('class="scopus-queries"', refs_html_content))) {
+  query_status <- scopus_queries_status(refs_html_path, query)
+  if (query_status %in% c("absent", "changed")) {
     write_scopus_queries(refs_html_path, query, query_source, search_period,
                          script_path = sp)
     any_changes <- TRUE
-    cat("  Embedded Scopus query info\n")
+    cat(if (query_status == "absent") "  Embedded Scopus query info\n" else
+      "  Updated Scopus query info: the query has changed\n")
+  } else if (query_status == "unreadable") {
+    cat("  Warning: scopus-queries block could not be parsed and was left untouched\n")
   }
 }
 
@@ -1520,16 +1690,16 @@ fix_author_case_in_line <- function(ln) {
 
 # ===========================================================================
 #  LINT EXISTING REFERENCES
-#  Re-scan all publication index files for known bad patterns and fix in place.
+#  Re-scan every related-references.html in both sections for known bad
+#  patterns and fix in place.
 # ===========================================================================
 
 cat("\n=== Linting existing references ===\n")
 
-lint_files <- list.files("content/publication", pattern = "related-references\\.html$",
-                         recursive = TRUE, full.names = TRUE)
+lint_files <- list_refs_html_files()
 
-# Built once from every publication's abstracts, so that a word's case is
-# judged against the whole corpus rather than against one publication's topic.
+# Built once from every bundle's abstracts, so that a word's case is judged
+# against the whole corpus rather than against one page's topic.
 case_lexicon <- build_case_lexicon(lint_files)
 cat("Case lexicon:", length(ls(case_lexicon$safe)), "common words,",
     length(ls(case_lexicon$proper)), "proper nouns\n")
