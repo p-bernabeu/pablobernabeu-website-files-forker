@@ -2,13 +2,17 @@
 title: 'pilotr: Pilot the study before running it'
 author: ''
 date: '2026-09-01'
+apa_captions: true
 slug: pilotr-pilot-the-study-before-running-it
 code_folding: hide
+editable_r: true
 categories:
+  - R
   - statistics
   - research methods
 tags:
   - s
+  - R
   - power analysis
   - simulation
   - linear mixed-effects models
@@ -26,6 +30,13 @@ image:
   caption: ''
   focal_point: ''
   preview_only: no
+package_docs:
+  - name: R documentation
+    url: https://pablobernabeu.github.io/pilotr/r/
+  - name: Python documentation
+    url: https://pablobernabeu.github.io/pilotr/python/
+  - name: Browser app
+    url: https://pablobernabeu.github.io/pilotr/app/
 projects: []
 ---
 
@@ -51,19 +62,14 @@ blog_theme <- theme_minimal(base_size = 12) +
     strip.text = element_text(size = 11),
     plot.title = element_text(size = 11.5, margin = margin(b = 8)),
     plot.title.position = 'plot',
-    plot.caption = element_text(size = 9.5, colour = 'grey35', hjust = 0,
-                                margin = margin(t = 10)),
-    plot.caption.position = 'plot',
     panel.grid.minor = element_blank(),
-    plot.margin = margin(10, 14, 10, 10)
+    plot.margin = margin(5.5, 14, 10, 10)
   )
 percent_axis <- scales::label_percent(accuracy = 1)
 # The orange used for fills and lines is too light for small text on white
 # (3.9:1), so text labels use a darker shade of the same hue (5.3:1).
 text_orange <- '#B34D00'
 ```
-
-## Introduction
 
 Power calculations can feel reassuringly final. Choose an effect, enter a sample size and read off a percentage. That simplicity disappears in experiments where participants respond to many items. Participants and items both vary, their responses are crossed, and the model usually needs random slopes as well as random intercepts. The design has become too structured for a single formula.
 
@@ -73,20 +79,21 @@ I built [pilotr](/software/pilotr/) (Bernabeu, 2026) to make the assumptions beh
 
 The example moves from a transparent design specification to simulated observations and then to a set of planning diagnostics. Each analysis uses only twelve replicates, which keeps the code quick to run. The results therefore show the shape of each diagnostic and the quantity to read from it, but they cannot settle a sample size.
 
-### A study that does not exist yet
+### A Study That Does Not Exist Yet
 
-The imagined experiment is a lexical-decision task. Every participant sees every target word after both a related and an unrelated prime. Reaction times follow a shifted lognormal distribution, and the model includes item frequency, participant vocabulary, and an interaction between vocabulary and priming.
+The imagined experiment is a lexical-decision task. Every participant sees every target word after both a related and an unrelated prime. Reaction times follow a shifted lognormal distribution, and the model includes item frequency, participant vocabulary, and an interaction between vocabulary and priming. The main assumptions are set out in Table 1.
 
-The main assumptions are set out below.
-
-| Part of the design | Assumption |
-|---|---|
-| Participants | 30 |
-| Items | 24 |
-| Priming effect | 0.05 on the log scale, about 20 ms |
-| Participant variation | Random intercept and priming slope |
-| Item variation | Random intercept and priming slope |
-| Response | Shifted lognormal reaction time |
+```{r design-assumptions}
+knitr::kable(caption = 'The Assumptions Behind the Imagined Study.', data.frame(
+  `Part of the design` = c('Participants', 'Items', 'Priming effect',
+                           'Participant variation', 'Item variation', 'Response'),
+  Assumption = c('30', '24', '0.05 on the log scale, about 20 ms',
+                 'Random intercept and priming slope',
+                 'Random intercept and priming slope',
+                 'Shifted lognormal reaction time'),
+  check.names = FALSE
+), row.names = FALSE)
+```
 
 ```{r define-spec}
 spec <- list(
@@ -123,15 +130,15 @@ The specification determines the analysis formula as well as the data generator.
 model_formula(spec)
 ```
 
-### Looking at the imagined data
+### Looking at the Imagined Data
 
-A single simulated data set is useful before any power calculation (DeBruine & Barr, 2021). It shows whether the assumptions produce recognisable observations. The simulated reaction times are right-skewed, as intended, and unrelated primes shift the distribution slightly to the right.
+A single simulated data set is useful before any power calculation (DeBruine & Barr, 2021). It shows whether the assumptions produce recognisable observations. In Figure 1 the simulated reaction times are right-skewed, as intended, and unrelated primes shift the distribution slightly to the right.
 
 ```{r simulate-data}
 pilot <- simulate_design(spec)
 ```
 
-```{r response-distribution, fig.height = 3.6, fig.alt = 'Overlapping density curves of simulated reaction times for related and unrelated primes, with the unrelated distribution shifted slightly to the right'}
+```{r response-distribution, fig.height = 3.6, fig.cap = 'Simulated Reaction Times After Related and Unrelated Primes.', fig.alt = 'Overlapping density curves of simulated reaction times for related and unrelated primes, with the unrelated distribution shifted slightly to the right'}
 # Label each curve directly instead of using a legend: related primes to
 # the left of the rising edge near their peak, and unrelated primes to the
 # right of the shoulder where that distribution stands furthest above the
@@ -163,9 +170,9 @@ ggplot(pilot, aes(RT, fill = prime)) +
   blog_theme
 ```
 
-The average priming effect is only part of the picture. The specification gives participants and items their own priming slopes, and trial-level noise adds to that variation, so some show a much larger difference than others. In about a third of each set, the difference runs the other way.
+The average priming effect is only part of the picture. The specification gives participants and items their own priming slopes, and trial-level noise adds to that variation, so some show a much larger difference than others. Figure 2 gives each unit its own row, and in about a third of each set the difference runs the other way.
 
-```{r unit-effects, fig.height = 4.4, fig.alt = 'Dot plots of simulated priming effects for each item and participant, sorted within two panels and spread around zero'}
+```{r unit-effects, fig.height = 4.4, fig.cap = 'Simulated Priming Effects for Each Item and Each Participant.', fig.alt = 'Dot plots of simulated priming effects for each item and participant, sorted within two panels and spread around zero'}
 unit_effects <- function(unit) {
   means <- tapply(pilot$RT, list(pilot[[unit]], pilot$prime), mean)
   data.frame(unit = unit, id = rownames(means),
@@ -192,7 +199,7 @@ ggplot(effects, aes(effect_ms, id, colour = unit)) +
         panel.spacing.x = unit(1.5, 'lines'))
 ```
 
-### Detection is not estimation
+### Detection Is Not Estimation
 
 The first design analysis simulates the study repeatedly, fits the mixed model to each simulated data set, and records conventional power and the number of singular fits. It also reports Type S error, the chance that a significant estimate has the wrong sign, and Type M error, the factor by which significant estimates exaggerate the true effect (Gelman & Carlin, 2014).
 
@@ -201,7 +208,7 @@ power_at_plan <- power_mixed(spec, n_sims = n_sims, workers = workers)
 power_at_plan
 ```
 
-With twelve replicates, one simulated success moves a power figure by more than eight percentage points. A planning run would use the same code with several hundred replicates, enough to bring the Monte Carlo standard error in the `mcse` column down to an acceptable level. The power curve below comes from repeating the analysis at six sample sizes, from 16 to 96 participants.
+With twelve replicates, one simulated success moves a power figure by more than eight percentage points. A planning run would use the same code with several hundred replicates, enough to bring the Monte Carlo standard error in the `mcse` column down to an acceptable level. The power curve in Figure 3 comes from repeating the analysis at six sample sizes, from 16 to 96 participants.
 
 ```{r power-curve-data}
 power_curve <- power_curve_mixed(
@@ -213,7 +220,7 @@ power_curve <- power_curve_mixed(
 priming_curve <- power_curve[power_curve$effect == 'prime', ]
 ```
 
-```{r power-curve, fig.height = 4.2, fig.alt = 'Illustrative power estimates for the priming effect across sample sizes, with an 80 percent reference line'}
+```{r power-curve, fig.height = 4.2, fig.cap = sprintf('Detection Probability for the Priming Effect Across Participant Counts. %s replicates per design. All simulated designs contain 24 items.', n_sims), fig.alt = 'Illustrative power estimates for the priming effect across sample sizes, with an 80 percent reference line'}
 ggplot(priming_curve, aes(n_subject, power)) +
   geom_hline(yintercept = 0.8, linetype = 2, colour = 'grey55') +
   geom_ribbon(aes(ymin = power_lo, ymax = power_hi),
@@ -223,12 +230,11 @@ ggplot(priming_curve, aes(n_subject, power)) +
   scale_x_continuous(breaks = priming_curve$n_subject) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2),
                      labels = percent_axis) +
-  labs(x = 'Number of participants', y = 'Power for the priming effect',
-       caption = sprintf('%s replicates per design. All simulated designs contain 24 items', n_sims)) +
+  labs(x = 'Number of participants', y = 'Power for the priming effect') +
   blog_theme
 ```
 
-Power asks whether an effect would clear a threshold. I also want to know whether its interval would exclude effects too small to matter. With a region of practical equivalence (ROPE; Kruschke, 2018) of plus or minus 0.02 on the log scale, about 8 ms here, precision becomes a separate design criterion. Across samples of 16 to 200 participants, the left panel below shows how often the 95% confidence interval excludes the ROPE and the right panel shows the interval's mean width. The dashed line in the right panel marks a width of 0.06, below which an interval centred on the true effect of 0.05 would exclude the ROPE.
+Power asks whether an effect would clear a threshold. I also want to know whether its interval would exclude effects too small to matter. With a region of practical equivalence (ROPE; Kruschke, 2018) of plus or minus 0.02 on the log scale, about 8 ms here, precision becomes a separate design criterion. Across samples of 16 to 200 participants, the left panel of Figure 4 shows how often the 95% confidence interval excludes the ROPE and the right panel shows the interval's mean width. The dashed line in the right panel marks a width of 0.06, below which an interval centred on the true effect of 0.05 would exclude the ROPE.
 
 ```{r precision-data}
 precision <- precision_curve(
@@ -241,7 +247,7 @@ precision <- precision_curve(
 )
 ```
 
-```{r precision-curve, fig.height = 3.8, fig.alt = 'Two panels of illustrative estimates showing the probability that an interval excludes negligible effects and its mean width as the number of participants increases'}
+```{r precision-curve, fig.height = 3.8, fig.cap = sprintf('Precision, as the Probability That an Interval Excludes a Negligible Effect and as the Mean Width of That Interval, Across Participant Counts. %s replicates per design. All simulated designs contain 24 items.', n_sims), fig.alt = 'Two panels of illustrative estimates showing the probability that an interval excludes negligible effects and its mean width as the number of participants increases'}
 # Rotated beside panels this short, the long y-axis descriptions would run
 # the full panel height, so each becomes its panel's title instead. The
 # shared x-axis title is drawn once.
@@ -255,7 +261,7 @@ p_probability <- ggplot(precision, aes(n_subject, p_meaningful)) +
   labs(x = 'Number of participants', y = NULL,
        title = 'Probability the 95% CI excludes the ROPE') +
   blog_theme +
-  theme(plot.margin = margin(10, 30, 0, 10))
+  theme(plot.margin = margin(0, 30, 0, 10))
 
 p_width <- ggplot(precision, aes(n_subject, mean_ci_width)) +
   geom_hline(yintercept = 2 * (0.05 - 0.02), linetype = 2, colour = 'grey55') +
@@ -265,24 +271,15 @@ p_width <- ggplot(precision, aes(n_subject, mean_ci_width)) +
   labs(x = 'Number of participants', y = NULL,
        title = 'Mean 95% CI width (log scale)') +
   blog_theme +
-  theme(plot.margin = margin(10, 14, 0, 10))
+  theme(plot.margin = margin(0, 14, 0, 10))
 
 patchwork::wrap_plots(p_probability, p_width) +
-  patchwork::plot_layout(axis_titles = 'collect') +
-  patchwork::plot_annotation(
-    caption = sprintf(
-      '%s replicates per design. All simulated designs contain 24 items',
-      n_sims
-    ),
-    theme = theme(plot.caption = blog_theme$plot.caption,
-                  plot.caption.position = 'plot',
-                  plot.margin = margin(0, 0, 10, 0))
-  )
+  patchwork::plot_layout(axis_titles = 'collect')
 ```
 
-### The significant estimates are the misleading ones
+### The Significant Estimates Are the Misleading Ones
 
-A low-powered study misses real effects, and it also distorts the ones it finds. When power is low, only unusually large estimates pass the significance threshold, so significance selects for exaggeration. To see that selection directly, I varied the true effect with 30 participants and set the result beside the sample-size curve from above, in which the effect stays at 0.05.
+A low-powered study misses real effects, and it also distorts the ones it finds. When power is low, only unusually large estimates pass the significance threshold, so significance selects for exaggeration. To see that selection directly, I varied the true effect with 30 participants and set the result, in Figure 5, beside the sample-size curve from above, in which the effect stays at 0.05.
 
 ```{r type-m-data}
 effect_grid <- design_conditions(
@@ -304,7 +301,7 @@ type_m <- rbind(
 type_m <- type_m[is.finite(type_m$type_m), ]
 ```
 
-```{r type-m-plot, fig.height = 4.4, fig.alt = 'Type M error falls towards one as power increases in both an effect-size sweep and a sample-size curve'}
+```{r type-m-plot, fig.height = 4.4, fig.cap = sprintf('Magnitude Exaggeration Among the Statistically Significant Estimates, Against Power. %s replicates per design.', n_sims), fig.alt = 'Type M error falls from about 1.4 and 1.2 at low power to about 1 at high power in both an effect-size sweep and a sample-size curve, crossing slightly below the no-exaggeration line'}
 # Each series is labelled beside its lowest-power point instead of in a
 # legend: the steep effect-size series just above and to the right of it,
 # and the flatter sample-size series below its first segment.
@@ -330,14 +327,11 @@ ggplot(type_m, aes(power, type_m, colour = series)) +
   scale_colour_manual(values = c('#0072B2', '#D55E00'), guide = 'none') +
   scale_x_continuous(breaks = seq(0, 1, 0.2), labels = percent_axis) +
   scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +
-  labs(
-    x = 'Power', y = 'Type M error',
-    caption = sprintf('%s replicates per design', n_sims)
-  ) +
+  labs(x = 'Power', y = 'Type M error') +
   blog_theme
 ```
 
-Type M error falls towards 1 as power rises in both series. Together, these diagnostics cover what a planning run has to examine: detection, precision, magnitude error and singular fits. The frequent singular fits in this example call for a second look at the random-effects structure before anyone is recruited. Keeping that structure maximal protects the Type I error rate (Barr et al., 2013), and trimming it when the data cannot support it protects power (Matuschek et al., 2017). A planning run lets me weigh that trade-off while the design can still change.
+Type M error falls as power rises in both series, from about 1.2 and 1.4 at the lowest power to roughly 1 at the highest. With twelve replicates it also wanders below 1, which a planning run with several hundred replicates would not. Together, these diagnostics cover what a planning run has to examine: detection, precision, magnitude error and singular fits. The frequent singular fits in this example call for a second look at the random-effects structure before anyone is recruited. Keeping that structure maximal protects the Type I error rate (Barr et al., 2013), and trimming it when the data cannot support it protects power (Matuschek et al., 2017). A planning run lets me weigh that trade-off while the design can still change.
 
 ## Discussion
 

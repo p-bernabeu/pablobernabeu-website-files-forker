@@ -2,13 +2,16 @@
 title: 'lexsync: From a word-frequency corpus to an EEG-ready experiment'
 author: ''
 date: '2026-09-01'
+apa_captions: true
 slug: lexsync-from-corpus-to-eeg-ready-experiment
 code_folding: hide
 categories:
+  - R
   - psycholinguistics
   - research methods
 tags:
   - s
+  - R
   - psycholinguistics
   - experimental stimuli
   - electroencephalography
@@ -28,6 +31,11 @@ image:
   caption: ''
   focal_point: ''
   preview_only: no
+package_docs:
+  - name: R documentation
+    url: https://pablobernabeu.github.io/lexsync/r/
+  - name: Python documentation
+    url: https://pablobernabeu.github.io/lexsync/python/
 projects: []
 ---
 
@@ -41,15 +49,13 @@ unlink(output_dir, recursive = TRUE)
 dir.create(output_dir, showWarnings = FALSE)
 ```
 
-## Introduction
-
 A high- versus low-frequency word experiment sounds simple until the materials are assembled. The frequency bands must differ, while length and orthographic similarity should not. The selected words then need to be divided across presentation lists without creating a new imbalance. Finally, the same item table must reach the experiment software with its trial order, timing and electroencephalography (EEG) triggers intact.
 
 I wrote [lexsync](https://github.com/pablobernabeu/lexsync) (Bernabeu, 2026) to keep those stages in one reproducible workflow. The package stores the design separately from the candidate corpus, reports the balance that was achieved, and exports runnable experiments for PsychoPy, OpenSesame and jsPsych. Its R and Python implementations read the same design format, and the examples below use R.
 
 ## Development
 
-The workflow below keeps each design decision in view as it defines the candidate pool, checks the realised balance and passes the same specification on to the presentation software.
+The workflow below keeps each design decision in view as it defines the candidate pool, checks the realised balance and passes the same specification on to the presentation software. Every step reads the same schema file, so a change to the design reaches the generated experiment without being retyped.
 
 ```{r}
 library(lexsync)
@@ -62,7 +68,7 @@ schema <- yaml::read_yaml(schema_path)
 lexicon <- load_lexicon(lexicon_path, schema, language = 'english')
 ```
 
-### Put the design in data
+### Put the Design in Data
 
 The design below asks for 40 words in each frequency condition, matched on length, neighbourhood density and OLD20. Those three controls and frequency itself are then balanced across two presentation lists. Frequency is expressed on the Zipf scale (van Heuven et al., 2014), and OLD20 measures orthographic similarity as the mean edit distance between a word and its 20 nearest neighbours (Yarkoni et al., 2008).
 
@@ -96,9 +102,9 @@ candidate_counts
 
 The high-frequency band is the smaller candidate set, so it limits both the number and the quality of possible matches. Counting the candidates before matching shows whether a later shortfall stems from the size of this pool.
 
-### Select and check the words
+### Select and Check the Words
 
-`match_stimuli()` spreads anchor words across the smaller frequency band and finds nearby words from the other condition in the standardised space of the control variables.
+`match_stimuli()` spreads anchor words across the smaller frequency band and finds nearby words from the other condition in the standardised space of the control variables. Standardising first means that a given distance counts the same whichever control it falls on.
 
 ```{r}
 stimuli <- match_stimuli(pool, design, schema)
@@ -106,7 +112,7 @@ head(stimuli[, c('set', 'condition', 'word', 'frequency', 'length',
                   'n_density', 'old20')])
 ```
 
-The report treats matching as a claim of equivalence. For each control, it gives Cohen's $d$ with a 90% confidence interval and applies the two one-sided tests (TOST) procedure against the schema's bound of half a standard deviation (Lakens, 2017). The frequency row reflects the intended manipulation, so the figure leaves it out.
+The report treats matching as a claim of equivalence. For each control, it gives Cohen's $d$ with a 90% confidence interval and applies the two one-sided tests (TOST) procedure against the schema's bound of half a standard deviation (Lakens, 2017). The frequency row reflects the intended manipulation, so Figure 1 leaves it out.
 
 ```{r}
 report <- match_report(
@@ -117,7 +123,7 @@ report <- match_report(
 report$comparisons
 ```
 
-```{r balance-plot, fig.width = 7.5, fig.height = 3.3, fig.alt = 'Dot-and-whisker plot showing standardised differences and 90 per cent confidence intervals for word length, neighbourhood density and OLD20, with equivalence bounds at minus and plus 0.5'}
+```{r balance-plot, fig.width = 7.5, fig.height = 3.3, fig.cap = 'Realised Balance Between the Frequency Conditions on Each Control Variable, With 90% Confidence Intervals Against the Prespecified Equivalence Region.', fig.alt = 'Dot-and-whisker plot showing standardised differences and 90 per cent confidence intervals for word length, neighbourhood density and OLD20, with equivalence bounds at minus and plus 0.5'}
 controls <- subset(report$comparisons, dimension != 'frequency')
 controls$dimension <- factor(
   controls$dimension,
@@ -153,7 +159,7 @@ ggplot(controls, aes(cohens_d, dimension)) +
 
 The intervals deserve more attention than the point estimates, because they carry the uncertainty. With few items per condition, an estimate near zero can still be too imprecise to support a claim of equivalence.
 
-### Carry the items into the experiment
+### Carry the Items Into the Experiment
 
 The design also describes each trial, which presents a fixation cross, the word with a condition trigger locked to its onset, a response window and a blank interval of jittered length. The jitter is derived from a keyed hash of the design and seed, so rebuilding the experiment reproduces the same timing.
 

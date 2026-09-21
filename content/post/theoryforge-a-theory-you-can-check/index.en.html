@@ -2,13 +2,17 @@
 title: 'theoryforge: A theory you can check'
 author: ''
 date: '2026-09-01'
+apa_captions: true
 slug: theoryforge-a-theory-you-can-check
 code_folding: hide
+editable_r: true
 categories:
+  - R
   - research methods
   - science
 tags:
   - s
+  - R
   - theory
   - philosophy of science
   - preregistration
@@ -28,6 +32,13 @@ image:
   caption: ''
   focal_point: ''
   preview_only: no
+package_docs:
+  - name: R documentation
+    url: https://pablobernabeu.github.io/theoryforge/r/
+  - name: Python documentation
+    url: https://pablobernabeu.github.io/theoryforge/python/
+  - name: Browser apps
+    url: https://pablobernabeu.github.io/theoryforge/
 projects: []
 ---
 
@@ -37,15 +48,12 @@ projects: []
 <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
 <p>A verbal theory can sound precise while leaving its structure uncertain. Its constructs may overlap, a prediction may not follow from any proposition and an amendment may protect the theory without adding a new risk. These are properties of the theory’s specification, yet ordinary prose gives software nothing to inspect.</p>
 <p>I wrote <a href="https://github.com/pablobernabeu/theoryforge">theoryforge</a> (Bernabeu, 2026) to store that specification as a small YAML or JSON document. The document records constructs, propositions, predictions, alternatives, versions and provenance under a published schema. The package can then check the cross-references between those parts, derive implications from the causal graph and produce a dossier for review. Its <a href="https://pablobernabeu.github.io/theoryforge/r/">R</a> and <a href="https://pablobernabeu.github.io/theoryforge/python/">Python</a> implementations share that format.</p>
 <p>The example is a theory of modality switching in grounded conceptual processing. People are slower to verify a conceptual property when the preceding trial involved a different perceptual modality than when it involved the same one (Pecher et al., 2003). The authors took this switching cost as evidence that conceptual processing draws on perceptual simulation, as the theory of perceptual symbol systems proposes (Barsalou, 1999).</p>
-</div>
 <div id="development" class="section level2">
 <h2>Development</h2>
-<p>This section develops the theory in four stages: validate the document, read the causal graph, derive a discriminating test and preserve the resulting dossier.</p>
+<p>This section develops the theory in four stages: validate the document, read the causal graph, derive a discriminating test and preserve the resulting dossier. Every stage works on the same YAML file, and none of them asks the reader to take its structure on trust.</p>
 <pre class="r"><code>library(theoryforge)
 packageVersion(&#39;theoryforge&#39;)</code></pre>
 <pre><code>#&gt; [1] &#39;0.6.0&#39;</code></pre>
@@ -60,7 +68,7 @@ c(id = switching$id,
 #&gt;              propositions               predictions 
 #&gt;                       &quot;4&quot;                       &quot;4&quot;</code></pre>
 <div id="treat-the-theory-as-a-checked-document" class="section level3">
-<h3>Treat the theory as a checked document</h3>
+<h3>Treat the Theory as a Checked Document</h3>
 <p>Structural validation checks required fields and allowed values. Full validation also follows identifiers across the document, so a prediction cannot claim to derive from a proposition that does not exist.</p>
 <pre class="r"><code>tf_validate(switching, full = TRUE)
 
@@ -73,8 +81,8 @@ c(score = check$aggregate_score,
 <p>The checklist has 12 items, each tied to a source in the methodological literature. They cover features that make a theory appraisable, such as whether it states what it prohibits, whether its predictions derive from stated propositions, and how precise and risky those predictions are (e.g., Meehl, 1990). The score measures how completely the theory is specified. A well-specified theory can still be wrong, while a promising informal account can score poorly because it is not yet explicit enough to test.</p>
 </div>
 <div id="read-the-graph" class="section level3">
-<h3>Read the graph</h3>
-<p>The theory’s propositions form a causal graph. Because the source is structured data, the same graph can be rendered for a reader or exported for another program.</p>
+<h3>Read the Graph</h3>
+<p>The theory’s propositions form a causal graph. Because the source is structured data, the same graph can be rendered for a reader, as in Figure 1, or exported for another program.</p>
 <pre class="mermaid"><code>flowchart TB
   c_sensorimotor_experience[&quot;Sensorimotor experience&lt;br&gt;with a concept&quot;]
   c_modality_activation[&quot;Modality-specific&lt;br&gt;perceptual activation&quot;]
@@ -85,13 +93,17 @@ c(score = check$aggregate_score,
   c_modality_activation --&gt;|increases| c_switch_cost
   c_modality_activation --&gt;|increases| c_conceptual_access
   c_lexical_familiarity --&gt;|increases| c_conceptual_access</code></pre>
+<p class="caption caption-diagram">
+Figure 1: The Constructs of the Theory and the Arrows It Asserts Between Them, as theoryforge Reads Them From the File.
+</p>
 <p>An acyclic causal graph also implies conditional independencies. Each one names an association that should be absent if the graph is correct, either outright or once certain constructs are held constant. Together, these claims define what the theory forbids in observed data.</p>
 <p>The graph contains four arrows and entails six testable independencies. These six form a basis set, so every other independence the graph implies follows from them. The most discriminating one is that sensorimotor experience and lexical familiarity should be uncorrelated, because the only path between them is blocked by a collider at conceptual access. An observed correlation between the two, with nothing conditioned on, would count against the graph.</p>
 </div>
 <div id="give-the-claims-a-discriminating-test" class="section level3">
-<h3>Give the claims a discriminating test</h3>
-<p>To test these claims, I simulated two data sets of 4,000 observations each. One follows the theory’s graph, and the other follows a rival account in which sensorimotor experience also contributes to lexical familiarity, with every other path unchanged. In each data set, I assessed all six independencies with the linear conditional-independence tests in the dagitty package (Textor et al., 2016). The table below shows how the key claim fares in both.</p>
+<h3>Give the Claims a Discriminating Test</h3>
+<p>To test these claims, I simulated two data sets of 4,000 observations each. One follows the theory’s graph, and the other follows a rival account in which sensorimotor experience also contributes to lexical familiarity, with every other path unchanged. In each data set, I assessed all six independencies with the linear conditional-independence tests in the dagitty package (Textor et al., 2016). Table 1 shows how the key claim fares in both.</p>
 <table>
+<caption><span id="tab:discriminating-test">Table 1: </span>The Claim That Separates the Two Theories, Tested in Data Generated From Each.</caption>
 <thead>
 <tr class="header">
 <th align="left">World</th>
@@ -115,9 +127,10 @@ c(score = check$aggregate_score,
 <p>All six implied independencies are compatible with the data generated from the theory. In the data generated from the rival, only the claim shown in the table fails. There, sensorimotor experience and lexical familiarity are substantially correlated, while the estimates for the other five claims stay close to zero. The failure therefore locates the part of the graph that conflicts with the data, a diagnosis that no single global score could give.</p>
 </div>
 <div id="preserve-the-result-with-the-theory" class="section level3">
-<h3>Preserve the result with the theory</h3>
-<p>The dossier gathers the rigour checklist, the severity of each prediction, the theory’s provenance and a preregistration of its hypotheses into one Markdown record. The R and Python packages produce the same dossier for the same theory, so a checksum of that record identifies the audited state of the theory in either language. The summary below repeats the score and gate and shows the first characters of the SHA-256 checksum.</p>
+<h3>Preserve the Result With the Theory</h3>
+<p>The dossier gathers the rigour checklist, the severity of each prediction, the theory’s provenance and a preregistration of its hypotheses into one Markdown record. The R and Python packages produce the same dossier for the same theory, so a checksum of that record identifies the audited state of the theory in either language. Table 2 repeats the score and gate and shows the first characters of the SHA-256 checksum.</p>
 <table>
+<caption><span id="tab:dossier-summary">Table 2: </span>The Dossier That Preserves This Version of the Theory.</caption>
 <thead>
 <tr class="header">
 <th align="left">Detail</th>
