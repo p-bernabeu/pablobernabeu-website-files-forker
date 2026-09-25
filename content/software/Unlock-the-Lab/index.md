@@ -54,7 +54,10 @@ The application is suitable for university workshops, open science training even
   </iframe>
 </div>
 
-### How It Works
+## How It Works
+
+The diagram below traces a participant's path through the application, from the educational introduction to the results.
+
 {{< diagram >}}
 graph TD
   A["Educational introduction:<br/>assessment concepts and<br/>21-term glossary"] --> B["Scenario evaluation:<br/>48 fictional research scenarios"]
@@ -107,7 +110,7 @@ A real-time leaderboard (Figure 3) ranks participants by their aggregate predict
 
 ## Analytics Dashboard
 
-A public [live analytics dashboard](https://unlock-the-lab.web.app/dashboard.html) visualises the data aggregated across all participants. Besides the leaderboard described above, it includes a criterion importance chart (Figure 4) showing the share of tokens that participants assigned to each of the six rubric criteria. A bar chart (Figure 5) also shows the mean quality rating of each of the 48 studies, with 95% confidence intervals. As in the scoring, these means and confidence intervals include the weighted expert rating of each study. The dashboard serves both participants reviewing their own results and facilitators or researchers interested in patterns across the whole group.
+A public [live analytics dashboard](https://unlock-the-lab.web.app/dashboard.html) visualises the data aggregated across all participants. Besides the leaderboard described above, it includes a criterion importance chart (Figure 4) showing the share of tokens that participants assigned to each of the six rubric criteria. A bar chart (Figure 5) also shows the mean quality rating that participants gave each of the 48 studies, with a 95% confidence interval computed from their ratings alone, and marks the expert rating of each study separately. The scoring, by contrast, counts the expert rating as if 100 participants had given it. The dashboard serves both participants reviewing their own results and facilitators or researchers interested in patterns across the whole group.
 
 <figure>
 <img loading="lazy" decoding="async" src="img/screenshot-dashboard-1.png" alt="Criterion importance chart showing the average percentage of tokens that participants assigned to each of the six rubric criteria, with 95% confidence intervals" style="max-width:100%; border-radius:6px; margin: 1em 0;">
@@ -115,8 +118,8 @@ A public [live analytics dashboard](https://unlock-the-lab.web.app/dashboard.htm
 </figure>
 
 <figure>
-<img loading="lazy" decoding="async" src="img/screenshot-dashboard-2.png" alt="Bar chart of the mean quality rating of each of the 48 studies on a 1–7 scale, with 95% confidence intervals and bars coloured red, orange or green from low to high ratings" style="max-width:100%; border-radius:6px; margin: 1em 0;">
-<figcaption>Mean Quality Rating of Each of the 48 Studies. Ratings are on a 1–7 scale, and error bars show 95% confidence intervals. Clicking a colour-coded bar opens detailed information on the study.</figcaption>
+<img loading="lazy" decoding="async" src="img/screenshot-dashboard-2.png" alt="Bar chart of the mean quality rating that participants gave each of the 48 studies on a 1–7 scale, with 95% confidence intervals, a diamond for each expert rating and bars coloured red, orange or green by the quality each study was written to have" style="max-width:100%; border-radius:6px; margin: 1em 0;">
+<figcaption>Mean Quality Rating of Each of the 48 Studies. Ratings are on a 1–7 scale. Error bars show 95% confidence intervals computed from participants' ratings, diamonds mark the expert ratings, and the colour of a bar gives the quality the study was written to have. Clicking a bar opens detailed information on the study.</figcaption>
 </figure>
 
 ## Broader Themes for Discussion
@@ -144,11 +147,11 @@ At a larger scale, [Hao et al. (2026)](https://doi.org/10.1038/s41586-025-09922-
 
 ## Source Code and Contributions
 
-The application is written in HTML, CSS and JavaScript. Its charts are drawn with [Chart.js](https://www.chartjs.org/), and Firebase provides the real-time database and the anonymous authentication of participants. The [source code is available on GitHub](https://github.com/pablobernabeu/Unlock_the_Lab) under a [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) licence and archived on Zenodo ([Bernabeu, 2026](https://doi.org/10.5281/zenodo.19153148)). The application can be extended or adapted through pull requests. Feature requests, bug reports and other suggestions can be submitted as [issues](https://github.com/pablobernabeu/Unlock_the_Lab/issues).
+The application is written in HTML, CSS and JavaScript. Its charts are drawn with [Chart.js](https://www.chartjs.org/), and Firebase provides the real-time database and the anonymous authentication of participants. The [source code is available on GitHub](https://github.com/pablobernabeu/Unlock_the_Lab) under a [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) licence and archived on Zenodo ([Bernabeu, 2026](https://doi.org/10.5281/zenodo.19153149)). The application can be extended or adapted through pull requests. Feature requests, bug reports and other suggestions can be submitted as [issues](https://github.com/pablobernabeu/Unlock_the_Lab/issues).
 
 ## References
 
-Bernabeu, P. (2026). *Unlock the Lab: Your guide to reading science like a scientist* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.19153148
+Bernabeu, P. (2026). *Unlock the Lab: Your guide to reading science like a scientist* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.19153149
 
 Bruton, S. V., Medlin, M., Brown, M., & Sacco, D. F. (2020). Personal motivations and systemic incentives: Scientists on questionable research practices. *Science and Engineering Ethics, 26*(3), 1531–1547. https://doi.org/10.1007/s11948-020-00182-9
 
